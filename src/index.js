@@ -1,3 +1,3 @@
-import  { menuLoop } from './menu/menu.js';
+import  { menuLoopGeneral } from './menu/generalMenu.js';
 
-menuLoop();
+menuLoopGeneral();
