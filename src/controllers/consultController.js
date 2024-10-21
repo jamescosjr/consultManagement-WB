@@ -1,94 +1,116 @@
-import { 
-    createConsult, 
-    listConsults,
-    listConsultsByDate, 
-    listConsultsByDescription,
-    listConsultsByDoctorId, 
-    listConsultsByPatientId,
-    deleteConsultById, 
-    updateConsultById 
-} from '../service/consultService.js';
+import {
+    create,
+    findAll,
+    findByPatientId,
+    findByDoctorId,
+    findByDate,
+    findByDescription,
+    deleteById,
+    updateById
+} from '../repository/consultRepository.js';
 
-export function createConsultHandler(data) {
+export function createConsultHandler(req, res) {
+    const consult = req.body;
     try {
-        const doctor = createConsult(data);
-        console.log('Consult created successfully:', doctor);
+        const newConsult = create(consult);
+        if (!newConsult) {
+            return res.status(400).send('Consult not created.');
+        }
+        res.status(201).json(newConsult);
     } catch (error) {
-        console.error('Error registering consult:', error.message);
+        res.status(500).send(error.message);
     }
+    
 };
 
-export function listConsultsHandler() {
-    const consults = listConsults();
-    console.log('consults:', consults);
+export function listConsultsHandler(req, res) {
+    try {
+        const consults = findAll();
+        res.status(200).json(consults);
+    } catch (error) {
+        res.status(500).send(error.message);
+    
+};
 };
 
-export function listConsultsByDoctorIdHandler(doctorId) {
+export function listConsultsByDoctorIdHandler(req, res) {
+    const doctorId = req.params.doctorId;
     try {
-        const consults = listConsultsByDoctorId(doctorId);
-        console.log('Consults found:', consults);
-    } catch (error) {
-        console.error('Error listing consults by doctorId:', error.message);
-    }
-}
-
-export function listConsultsByPatientIdHandler(patientId) {
-    try {
-        const consults = listConsultsByPatientId(patientId);
-        console.log('Consults found:', consults);
-    } catch (error) {
-        console.error('Error listing consults by patientId:', error.message);
-    }
-}
-
-export function listConsultsByDescriptionHandler(description) {
-    try {
-        const consult = listConsultsByDescription(description);
-        if (!consult) {
-            console.log('Consult not found.');
-            return;
+        const consults = findByDoctorId(doctorId);
+        if (!consults.length) {
+            return res.status(404).send('Consults not found.');
         }
-        console.log('Consult found:', consult);
+        res.status(200).json(consults);
     } catch (error) {
-        console.error('Error listing consult by description:', error.message);
+        res.status(500).send(error.message);
     }
 }
 
-export function listConsultsByDateHandler(date) {
+export function listConsultsByPatientIdHandler(req, res) {
+    const patientId = req.params.patientId;
     try {
-        const consult = listConsultsByDate(date);
-        if (!consult) {
-            console.log('Consult not found.');
-            return;
+        const consults = findByPatientId(patientId);
+        if (!consults.length) {
+            return res.status(404).send('Consults not found.');
         }
-        console.log('Consult found:', consult);
+        res.status(200).json(consults);
     } catch (error) {
-        console.error('Error listing consult by date:', error.message);
+        res.status(500).send(error.message);
     }
 }
 
-export function deleteConsultHandler(id) {
+export function listConsultsByDescriptionHandler(req, res) {
+    const description = req.query.description;
     try {
-        const deletedConsult = deleteConsultById(id);
+        const consults = findByDescription(description);
+        if (!consults.length || !description) {
+            return res.status(404).send('Consults not found.');
+        }
+        res.status(200).json(consults);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export function listConsultsByDateHandler(req, res) {
+    const date = req.query.date;
+    try {
+        const consults = findByDate(date);
+        if (!consults.length) {
+            return res.status(404).send('Consults not found.');
+        }
+        res.status(200).json(consults);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+    
+}
+
+export function deleteConsultHandler(req, res) {
+    const id = req.params.id;
+    try {
+        const deletedConsult = deleteById(id);
         if (!deletedConsult) {
-            console.log('Consult not found, nothing to delete.');
-            return;
+            return res.status(404).send('Consult not found.');
         }
-        console.log('Consult deleted successfully:', deletedConsult);
+        res.status(204).end();
     } catch (error) {
-        console.error('Error deleting consult:', error.message);
+        res.status(500).json(error.message);
     }
+   
 };
 
-export function updateConsultHandler(id, data) {
+export function updateConsultHandler(req, res) {
+    const id = req.params.id;
+    const data = req.body;
     try {
-        const updatedConsult = updateConsultById(id, data);
+        const updatedConsult = updateById(id, data);
         if (!updatedConsult) {
-            console.log('Consult not found, nothing to update.');
-            return;
+            return res.status(404).send('Consult not found.');
         }
-        console.log('Consult updated successfully:', updatedConsult);
+        res.status(200).json(updatedConsult);
     } catch (error) {
-        console.error('Error updating consult:', error.message);
+        res.status(500).send(error.message);
     }
+    
 };

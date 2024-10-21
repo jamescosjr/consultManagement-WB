@@ -1,70 +1,88 @@
 import { 
-    createPatient, 
-    listPatients,
-    findPatientByName, 
-    listPatientsByAge, 
-    deletePatientById, 
-    updatePatientById 
-} from '../service/patientService.js';
+    create,
+    findAll,
+    listByAge,
+    findByName,
+    deleteById,
+    updateById
+} from '../repository/patientRepository.js';
 
-export function createPatientHandler(data) {
+export function createPatientHandler(req, res) {
+    const patient = req.body;
     try {
-        const patient = createPatient(data);
-        console.log('Patient created successfully:', patient);
-    } catch (error) {
-        console.error('Error registering patient:', error.message);
-    }
-};
-
-export function listPatientsHandler() {
-    const patient = listPatients();
-    console.log('patients:', patient);
-};
-
-export function listPatientsByAgeHandler(age) {
-    try {
-        const patient = listPatientsByAge(age);
-        console.log('patient found:', patient);
-    } catch (error) {
-        console.error('Error listing patients by age:', error.message);
-    }
-}
-
-export function findPatientByNameHandler(name) {
-    try {
-        const patient = findPatientByName(name);
-        if (!patient) {
-            console.log('Patient not found.');
-            return;
+        const newPatient = create(patient);
+        if (!newPatient) {
+            return res.status(400).send('Patient not created.');
         }
-        console.log('patient found:', patient);
+        res.status(201).json(newPatient);
     } catch (error) {
-        console.error('Error listing patient by name:', error.message);
+        res.status(500).send(error.message);
     }
+    
+};
+
+export function listPatientsHandler(req, res) {
+    try {
+        const patients = findAll();
+        res.status(200).json(patients);
+    } catch (error) {
+        res.status(500).send(error.message);
+    
+};
+};
+
+export function listPatientsByAgeHandler(req, res) {
+    const age = req.params.age;
+    try {
+        const patients = listByAge(age);
+        if (!patients.length) {
+            return res.status(404).send('Patients not found.');
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+    
 }
 
-export function deletePatientHandler(id) {
+export function findPatientByNameHandler(req, res) {
+    const name = req.query.name;
     try {
-        const deletedPatient = deletePatientById(id);
+        const patient = findByName(name);
+        if (!patient || patient.length === 0) {
+            return res.status(404).send('Patient not found.');
+        }
+        res.status(200).json(patient);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+   
+}
+
+export function deletePatientHandler(req, res) {
+    const id = req.params.id;
+    try {
+        const deletedPatient = deleteById(id);
         if (!deletedPatient) {
-            console.log('Doctor not found, nothing to delete.');
-            return;
+            return res.status(404).send('Patient not found.');
         }
-        console.log('Patient deleted successfully:', deletedPatient);
+        res.status(200).json(deletedPatient);
     } catch (error) {
-        console.error('Error deleting patient:', error.message);
+        res.status(500).send(error.message);
     }
+    
 };
 
-export function updatePatientHandler(id, data) {
+export function updatePatientHandler(req, res) {
+    const id = req.params.id;
+    const data = req.body;
     try {
-        const updatedPatient = updatePatientById(id, data);
+        const updatedPatient = updateById(id, data);
         if (!updatedPatient) {
-            console.log('Patient not found, nothing to update.');
-            return;
+            return res.status(404).send('Patient not found.');
         }
-        console.log('Patient updated successfully:', updatedPatient);
+        res.status(200).json(updatedPatient);
     } catch (error) {
-        console.error('Error updating patient:', error.message);
+        res.status(500).send(error.message);
     }
+    
 };

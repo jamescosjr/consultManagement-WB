@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import { json } from 'express';
 import {
     createDoctorHandler,
     listDoctorsHandler,
@@ -7,117 +8,150 @@ import {
     findDoctorByNameHandler,
     listDoctorsBySpecialtyHandler
  } from '../../controllers/doctorController.js';
-import * as doctorService from '../../service/doctorService.js';
-
-const logSpy = jest.spyOn(console, 'log').mockImplementation();
-const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+import * as doctorRepository from '../../repository/doctorRepository.js';
 
 afterEach(() => {
     jest.clearAllMocks();
 });
 
 describe('Doctor Handlers', () => {
-    it('should log success message when registering a doctor', () => {
-        const mockDoctor = { name: 'Test name', specialty: 'Test specialty' };
-        jest.spyOn(doctorService, 'createDoctor').mockReturnValue(mockDoctor);
-
-        createDoctorHandler(mockDoctor);
-
-        expect(logSpy).toHaveBeenCalledWith('Doctor created successfully:', mockDoctor);
-    });   
-
-    it('should log error message when creating a doctor fails', () => {
-        jest.spyOn(doctorService, 'createDoctor').mockImplementation(() => {
-            throw new Error('Creation Error');
-        });
-
-        createDoctorHandler({ name: 'Test name', specialty: 'Test specialty' });
-
-        expect(errorSpy).toHaveBeenCalledWith('Error registering doctor:', 'Creation Error');
+    it ('should return a 201 and the new doctor when creating a doctor', () => {
+        const req = { body: { name: 'Doctor', specialty: 'Specialty' } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.spyOn(doctorRepository, 'create').mockReturnValue(req.body);
+        createDoctorHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(req.body);
     });
 
-    it('should list all doctors', () => {
-        const mockDoctors = [{ name: 'Test name', specialty: 'Test specialty' }];
-        jest.spyOn(doctorService, 'listDoctors').mockReturnValue(mockDoctors);
-    
-        listDoctorsHandler();
-    
-        expect(logSpy).toHaveBeenCalledWith('doctors:', mockDoctors);
+    it ('should return a 200 and the list of doctors when listing all doctors', () => {
+        const req = {};
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.spyOn(doctorRepository, 'findAll').mockReturnValue([]);
+        listDoctorsHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith([]);
     });
 
-    it('should find a doctor by name', () => {
-        const mockDoctor = { name: 'Test name', specialty: 'Test specialty' };
-        jest.spyOn(doctorService, 'findDoctorByName').mockReturnValue(mockDoctor);
-    
-        findDoctorByNameHandler('Test name');
-    
-        expect(logSpy).toHaveBeenCalledWith('doctor found:', mockDoctor);
-    });
-    
-    it('should log not found message if doctor is not found', () => {
-        jest.spyOn(doctorService, 'findDoctorByName').mockReturnValue(null);
-    
-        findDoctorByNameHandler('Nonexistent name');
-    
-        expect(logSpy).toHaveBeenCalledWith('Doctor not found.');
+    it ('should return a 404 when no doctor is found by name', async () => {
+        const req = { query: { name: 'Doctor' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(doctorRepository, 'findByName').mockReturnValue([]);
+        await findDoctorByNameHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Doctor not found.');
     });
 
-    it('should list doctors by specialty', () => {
-        const mockDoctors = [{ name: 'Test name', specialty: 'Test specialty' }];
-        jest.spyOn(doctorService, 'listDoctorsBySpecialty').mockReturnValue(mockDoctors);
+    it ('should return a 500 when an error occurs while creating a doctor', () => {
+        const req = { body: { name: 'Doctor', specialty: 'Specialty' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(doctorRepository, 'create').mockImplementation(() => { throw new Error('Error') });
+        createDoctorHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log error message when listing doctors by specialty fails', () => {
-        jest.spyOn(doctorService, 'listDoctorsBySpecialty').mockImplementation(() => {
-            throw new Error('Doctor not found');
-        });
-    
-        listDoctorsBySpecialtyHandler('Test specialty');
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error listing doctors by specialty:', 'Doctor not found');
-    });
-    
-    it('should delete a doctor by id', () => {
-        const mockDoctor = { name: 'Test name', specialty: 'Test specialty', id: 1 };
-        jest.spyOn(doctorService, 'deleteDoctorById').mockReturnValue(mockDoctor);
-
-        deleteDoctorHandler(1);
-
-        expect(logSpy).toHaveBeenCalledWith('Doctor deleted successfully:', mockDoctor);
+    it ('should return a 500 when an error occurs while listing all doctors', () => {
+        const req = {};
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(doctorRepository, 'findAll').mockImplementation(() => { throw new Error('Error') });
+        listDoctorsHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log not found message if doctor to delete is not found', () => {
-        jest.spyOn(doctorService, 'deleteDoctorById').mockReturnValue(null);
-    
-        deleteDoctorHandler(999);
-    
-        expect(logSpy).toHaveBeenCalledWith('Doctor not found, nothing to delete.');
-    });
-    
-    it('should log error message when deleting a doctor fails', () => {
-        jest.spyOn(doctorService, 'deleteDoctorById').mockImplementation(() => {
-            throw new Error('Deletion Error');
-        });
-    
-        deleteDoctorHandler(1);
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error deleting doctor:', 'Deletion Error');
+    it ('should return a 500 when an error occurs while listing doctors by specialty', () => {
+        const req = { params: { specialty: 'Specialty' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(doctorRepository, 'listBySpecialty').mockImplementation(() => { throw new Error('Error') });
+        listDoctorsBySpecialtyHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should update a doctor by id', () => {
-        const mockDoctor = { name: 'Test name', specialty: 'Test specialty', id: 1 };
-        jest.spyOn(doctorService, 'updateDoctorById').mockReturnValue(mockDoctor);
-
-        updateDoctorHandler(1, mockDoctor);
-
-        expect(logSpy).toHaveBeenCalledWith('Doctor updated successfully:', mockDoctor);
+    it ('should return a 500 when an error occurs while finding a doctor by name', async () => {
+        const req = { query: { name: 'Doctor' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(doctorRepository, 'findByName').mockImplementation(() => { throw new Error('Error') });
+        await findDoctorByNameHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log not found message if doctor to update is not found', () => {
-        jest.spyOn(doctorService, 'updateDoctorById').mockReturnValue(null);
+    it('should create a doctor and then return a 200 and the doctor when updating a doctor', async () => {
+        const req = { body: { name: 'Doctor', specialty: 'Specialty' }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
     
-        updateDoctorHandler(999, { name: 'Test name', specialty: 'Test specialty' });
+        const updatedDoctor = { id: 1, name: 'Doctor', specialty: 'Specialty' };
     
-        expect(logSpy).toHaveBeenCalledWith('Doctor not found, nothing to update.');
+        jest.spyOn(doctorRepository, 'updateById').mockResolvedValue(updatedDoctor);
+    
+        await updateDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(updatedDoctor);
     });
+
+    it('should return a 404 when no doctor is found by id', async () => {
+        const req = { body: { name: 'Doctor', specialty: 'Specialty' }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
+    
+        jest.spyOn(doctorRepository, 'updateById').mockResolvedValue(null);
+    
+        await updateDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Doctor not found.');
+    });
+
+    it('should return a 500 when an error occurs while updating a doctor', async () => {
+        const req = { body: { name: 'Doctor', specialty: 'Specialty' }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
+    
+        jest.spyOn(doctorRepository, 'updateById').mockRejectedValue(new Error('Error'));
+    
+        await updateDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
+    });
+
+    it('should return a 200 and the deleted doctor when deleting a doctor', () => {
+        const req = { params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
+    
+        const deletedDoctor = { id: 1, name: 'Doctor', specialty: 'Specialty' };
+    
+        jest.spyOn(doctorRepository, 'deleteById').mockReturnValue(deletedDoctor);
+    
+        deleteDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(deletedDoctor);
+    });
+
+    it('should return a 404 when no doctor is found by id', () => {
+        const req = { params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
+    
+        jest.spyOn(doctorRepository, 'deleteById').mockReturnValue(null);
+    
+        deleteDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Doctor not found.');
+    });
+
+    it('should return a 500 when an error occurs while deleting a doctor', () => {
+        const req = { params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
+    
+        jest.spyOn(doctorRepository, 'deleteById').mockImplementation(() => { throw new Error('Error') });
+    
+        deleteDoctorHandler(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
+    });
+    
 });

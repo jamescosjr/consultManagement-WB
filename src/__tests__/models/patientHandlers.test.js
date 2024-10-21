@@ -7,128 +7,110 @@ import {
     findPatientByNameHandler,
     listPatientsByAgeHandler
  } from '../../controllers/patientController.js';
-import * as patientService from '../../service/patientService.js';
-
-const logSpy = jest.spyOn(console, 'log').mockImplementation();
-const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+import * as patientRepository from '../../repository/patientRepository.js';
 
 afterEach(() => {
     jest.clearAllMocks();
 });
 
 describe('Patient Handlers', () => {
-    it('should log success message when registering a patient', () => {
-        const mockPatient = { name: 'Test name', age: 22 };
-        jest.spyOn(patientService, 'createPatient').mockReturnValue(mockPatient);
+   it ('should return a 201 and the new patient when creating a patient', () => {
+       const req = { body: { name: 'Patient', age: 20 } };
+       const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+       jest.spyOn(patientRepository, 'create').mockReturnValue(req.body);
+       createPatientHandler(req, res);
+       expect(res.status).toHaveBeenCalledWith(201);
+       expect(res.json).toHaveBeenCalledWith(req.body);
+   });
 
-        createPatientHandler(mockPatient);
-
-        expect(logSpy).toHaveBeenCalledWith('Patient created successfully:', mockPatient);
-    });   
-
-    it('should log error message when creating a patient fails', () => {
-        jest.spyOn(patientService, 'createPatient').mockImplementation(() => {
-            throw new Error('Creation Error');
-        });
-
-        createPatientHandler({ name: 'Test name', age: 22 });
-
-        expect(errorSpy).toHaveBeenCalledWith('Error registering patient:', 'Creation Error');
+    it ('should return a 200 and the list of patients when listing all patients', () => {
+         const req = {};
+         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+         jest.spyOn(patientRepository, 'findAll').mockReturnValue([]);
+         listPatientsHandler(req, res);
+         expect(res.status).toHaveBeenCalledWith(200);
+         expect(res.json).toHaveBeenCalledWith([]);
     });
 
-    it('should list all patients', () => {
-        const mockPatients = [{ name: 'Test name', age: 22 }];
-        jest.spyOn(patientService, 'listPatients').mockReturnValue(mockPatients);
-    
-        listPatientsHandler();
-    
-        expect(logSpy).toHaveBeenCalledWith('patients:', mockPatients);
+    it ('should return a 404 when no patient is found by age', () => {
+        const req = { params: { age: 20 } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'listByAge').mockReturnValue([]);
+        listPatientsByAgeHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Patients not found.');
     });
 
-    it('should find a patient by name', () => {
-        const mockPatient = { name: 'Test name', age: 22 };
-        jest.spyOn(patientService, 'findPatientByName').mockReturnValue(mockPatient);
-    
-        findPatientByNameHandler('Test name');
-    
-        expect(logSpy).toHaveBeenCalledWith('patient found:', mockPatient);
-    });
-    
-    it('should log not found message if patient is not found', () => {
-        jest.spyOn(patientService, 'findPatientByName').mockReturnValue(null);
-    
-        findPatientByNameHandler('Nonexistent name');
-    
-        expect(logSpy).toHaveBeenCalledWith('Patient not found.');
+    it ('should return a 404 when no patient is found by name', async () => {
+        const req = { query: { name: 'nonexisten Patient' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'findByName').mockReturnValue([]);
+        await findPatientByNameHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Patient not found.');
     });
 
-    it('should list patients by age', () => {
-        const mockPatients = [{ name: 'Test name', age: 22 }];
-        jest.spyOn(patientService, 'listPatientsByAge').mockReturnValue(mockPatients);
+    it ('should return a 500 when an error occurs while creating a patient', () => {
+        const req = { body: { name: 'Patient', age: 20 } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'create').mockImplementation(() => { throw new Error('Error') });
+        createPatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log error message when listing patients by age fails', () => {
-        jest.spyOn(patientService, 'listPatientsByAge').mockImplementation(() => {
-            throw new Error('List Error');
-        });
-
-        listPatientsByAgeHandler(22);
-
-        expect(errorSpy).toHaveBeenCalledWith('Error listing patients by age:', 'List Error');
+    it ('should return a 500 when an error occurs while listing all patients', () => {
+        const req = {};
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'findAll').mockImplementation(() => { throw new Error('Error') });
+        listPatientsHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log success message when deleting a patient', () => {
-        const mockPatient = { name: 'Test name', age: 22 };
-        jest.spyOn(patientService, 'deletePatientById').mockReturnValue(mockPatient);
-
-        deletePatientHandler(1);
-
-        expect(logSpy).toHaveBeenCalledWith('Patient deleted successfully:', mockPatient);
+    it ('should return a 200 and the deleted patient when deleting a patient', () => {
+        const req = { params: { id: '1' } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.spyOn(patientRepository, 'deleteById').mockReturnValue(req.params.id);
+        deletePatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(req.params.id);
     });
 
-    it('should log not found message if patient is not found', () => {
-        jest.spyOn(patientService, 'deletePatientById').mockReturnValue(null);
-
-        deletePatientHandler(1);
-
-        expect(logSpy).toHaveBeenCalledWith('Doctor not found, nothing to delete.');
+    it ('should return a 500 when an error occurs while deleting a patient', () => {
+        const req = { params: { id: '1' } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'deleteById').mockImplementation(() => { throw new Error('Error') });
+        deletePatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
-    it('should log error message when deleting a patient fails', () => {
-        jest.spyOn(patientService, 'deletePatientById').mockImplementation(() => {
-            throw new Error('Delete Error');
-        });
-
-        deletePatientHandler(1);
-
-        expect(errorSpy).toHaveBeenCalledWith('Error deleting patient:', 'Delete Error');
+    it ('should return a 200 and the updated patient when updating a patient', () => {
+        const req = { body: { name: 'Patient', age: 20 }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.spyOn(patientRepository, 'updateById').mockReturnValue(req.body);
+        updatePatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(req.body);
     });
 
-    it('should log success message when updating a patient', () => {
-        const mockPatient = { name: 'Test name', age: 22 };
-        jest.spyOn(patientService, 'updatePatientById').mockReturnValue(mockPatient);
-
-        updatePatientHandler(1, mockPatient);
-
-        expect(logSpy).toHaveBeenCalledWith('Patient updated successfully:', mockPatient);
+    it ('should return a 404 when no patient is found by id', () => {
+        const req = { body: { name: 'Patient', age: 20 }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'updateById').mockReturnValue(null);
+        updatePatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Patient not found.');
     });
 
-    it('should log not found message if patient is not found', () => {
-        jest.spyOn(patientService, 'updatePatientById').mockReturnValue(null);
-
-        updatePatientHandler(1, { name: 'Test name', age: 22 });
-
-        expect(logSpy).toHaveBeenCalledWith('Patient not found, nothing to update.');
-    });
-
-    it('should log error message when updating a patient fails', () => {
-        jest.spyOn(patientService, 'updatePatientById').mockImplementation(() => {
-            throw new Error('Update Error');
-        });
-
-        updatePatientHandler(1, { name: 'Test name', age: 22 });
-
-        expect(errorSpy).toHaveBeenCalledWith('Error updating patient:', 'Update Error');
+    it ('should return a 500 when an error occurs while updating a patient', () => {
+        const req = { body: { name: 'Patient', age: 20 }, params: { id: 1 } };
+        const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+        jest.spyOn(patientRepository, 'updateById').mockImplementation(() => { throw new Error('Error') });
+        updatePatientHandler(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error');
     });
 
 });
