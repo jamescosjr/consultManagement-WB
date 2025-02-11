@@ -1,0 +1,288 @@
+openapi: 3.0.0
+info:
+  title: Consult Management API
+  version: 1.0.0
+paths:
+  /consults:
+    post:
+      summary: Create a new consult
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consult'
+      responses:
+        '201':
+          description: Consult created
+    get:
+      summary: Get all consults
+      responses:
+        '200':
+          description: List of consults
+  /consults/id/{id}:
+    get:
+      summary: Get consult by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consult details
+    put:
+      summary: Update consult by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consult'
+      responses:
+        '200':
+          description: Consult updated
+    delete:
+      summary: Delete consult by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Consult deleted
+  /consults/doctor/{doctorId}:
+    get:
+      summary: Get consults by doctor ID
+      parameters:
+        - name: doctorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of consults
+  /consults/patient/{patientId}:
+    get:
+      summary: Get consults by patient ID
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of consults
+  /consults/date/{date}:
+    get:
+      summary: Get consults by date
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of consults
+  /patients:
+    post:
+      summary: Create a new patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '201':
+          description: Patient created
+    get:
+      summary: Get all patients
+      responses:
+        '200':
+          description: List of patients
+  /patients/id/{id}:
+    get:
+      summary: Get patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient details
+    put:
+      summary: Update patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          description: Patient updated
+    delete:
+      summary: Delete patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Patient deleted
+  /patients/name/{name}:
+    get:
+      summary: Get patient by name
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient details
+  /patients/age/{age}:
+    get:
+      summary: Get patients by age
+      parameters:
+        - name: age
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of patients
+  /doctors:
+    post:
+      summary: Create a new doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Doctor'
+      responses:
+        '201':
+          description: Doctor created
+    get:
+      summary: Get all doctors
+      responses:
+        '200':
+          description: List of doctors
+  /doctors/id/{id}:
+    get:
+      summary: Get doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Doctor details
+    put:
+      summary: Update doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Doctor'
+      responses:
+        '200':
+          description: Doctor updated
+    delete:
+      summary: Delete doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Doctor deleted
+  /doctors/name/{name}:
+    get:
+      summary: Get doctor by name
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Doctor details
+  /doctors/specialty/{specialty}:
+    get:
+      summary: Get doctors by specialty
+      parameters:
+        - name: specialty
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of doctors
+components:
+  schemas:
+    Patient:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+    Doctor:
+      type: object
+      properties:
+        name:
+          type: string
+        specialty:
+          type: string
+    Consult:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        doctorId:
+          type: string
+        patientId:
+          type: string
+        description:
+          type: string
