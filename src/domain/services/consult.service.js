@@ -2,17 +2,17 @@ import {
     createConsult,
     updateConsultById,
     deleteConsultById,
-} from "../../infrastructure/repositories/consult-repositories/consult.repository.write"
+} from "../../infrastructure/repositories/consult-repositories/consult.repository.write.js"
 import {
     getAllConsult,
     getConsultByDate,
     getConsultByDoctorId,
     getConsultById,
     getConsultByPatientId,
-} from "../../infrastructure/repositories/consult-repositories/consult.repository.read"
-import { NotFoundError } from "../error/customErros";
-import { Patient } from "../../infrastructure/schemas/patient.schema";
-import { Doctor } from "../../infrastructure/schemas/doctor.schema";
+} from "../../infrastructure/repositories/consult-repositories/consult.repository.read.js"
+import { NotFoundError } from "../error/customErros.js";
+import { Patient } from "../../infrastructure/schemas/patient.schema.js";
+import { Doctor } from "../../infrastructure/schemas/doctor.schema.js";
 
 export async function createConsultService({date, doctorId, patientId, description}) {
     const patientExists = await Patient.findById(patientId).lean();

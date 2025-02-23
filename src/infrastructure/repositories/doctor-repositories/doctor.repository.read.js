@@ -1,5 +1,5 @@
-import { Doctor } from "../../schemas/doctor.schema";
-import { AppError } from "../../../domain/error/customErros";
+import { Doctor } from "../../schemas/doctor.schema.js";
+import { AppError } from "../../../domain/error/customErros.js";
 
 export async function getAllDoctors(page = 1, limit = 10) {
     try{

@@ -1,5 +1,5 @@
-import { Consult } from "../../schemas/consult.schema"
-import { AppError } from "../../../domain/error/customErros"
+import { Consult } from "../../schemas/consult.schema.js"
+import { AppError } from "../../../domain/error/customErros.js"
 
 export async function getAllConsult(page = 1, limit = 10) {
     try{

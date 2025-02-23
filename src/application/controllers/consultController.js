@@ -7,9 +7,9 @@ import {
     getConsultByDoctorIdService,
     getConsultByIdService,
     getConsultByPatientIdService,
-} from '../../domain/services/consult.service';
-import { ValidationError, NotFoundError } from '../../domain/error/customErros';
-import { validateConsultData } from '../../domain/validation/consult';
+} from '../../domain/services/consult.service.js';
+import { ValidationError, NotFoundError } from '../../domain/error/customErros.js';
+import { validateConsultData } from '../../domain/validation/consult.js';
 
 export async function createConsultController(req, res, next) {
     const { date, doctorId, patientId, description } = req.body;

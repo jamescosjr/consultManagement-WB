@@ -1,4 +1,4 @@
-import { Consult } from '../../schemas/consult.schema';
+import { Consult } from '../../schemas/consult.schema.js';
 
 export async function createConsult({ date, doctorId, patientId, description }) {
     try {

@@ -7,7 +7,7 @@ import {
     getPatientByIdHandler,
     findPatientByNameHandler,
     listPatientsByAgeHandler,
-} from '../controllers/patientController';
+} from '../controllers/patientController.js';
 import {
     createDoctorHandler,
     updateDoctorHandler,
@@ -16,7 +16,7 @@ import {
     getDoctorByIdHandler,
     findDoctorByNameHandler,
     listDoctorsBySpecialtyHandler,
-} from '../controllers/doctorController'
+} from '../controllers/doctorController.js'
 import {
     createConsultController,
     updateConsultByIdController,
@@ -26,7 +26,7 @@ import {
     getConsultByDoctorIdController,
     getConsultByPatientIdController,
     getConsultByIdController,
-} from '../controllers/consultController'
+} from '../controllers/consultController.js'
 
 const router = Router();
 

@@ -189,6 +189,24 @@ paths:
       responses:
         '201':
           description: Doctor created
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Doctor'
+                  components:
+                    schemas:
+                      Doctor:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          name:
+                            type: string
+                          specialty:
+                            type: string
+                          __v:
+                            type: integer
     get:
       summary: Get all doctors
       responses:

@@ -1,5 +1,5 @@
 import { validateDoctorData } from "../../domain/validation/doctor.js";
-import { ValidationError, NotFoundError } from "../../domain/error/customErros";
+import { ValidationError, NotFoundError } from "../../domain/error/customErros.js";
 import { 
     createDoctorService, 
     updateDoctorService,

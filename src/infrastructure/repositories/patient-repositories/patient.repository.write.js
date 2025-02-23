@@ -1,4 +1,4 @@
-import { Patient } from "../../schemas/patient.schema";
+import { Patient } from "../../schemas/patient.schema.js";
 
 export async function createPatient({ name, age }){
     try {

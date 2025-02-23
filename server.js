@@ -3,10 +3,11 @@ import express from "express";
 import mongoose from "mongoose";
 import routes from "./src/application/router/routes.js";
 import errorHandler from "./src/application/middleware/errorHandler.js";
+import { validate } from 'express-jsonschema';
 import yaml from 'js-yaml';
 import fs from 'fs';
-import path from 'path';
-import { validate } from 'express-jsonschema';
+
+const schema = yaml.load(fs.readFileSync('./src/application/contracts/contract.yaml', 'utf8'));
 
 dotenv.config();
 
@@ -27,9 +28,6 @@ if (process.env.NODE_ENV !== 'test') {
     console.error("Error connecting to MongoDB:", err);
   });
 }
-const yamlFilePath = path.join(__dirname, '/src/application/contracts/contract.yaml');
-const yamlContent = fs.readFileSync(yamlFilePath, 'utf8');
-const schema = yaml.load(yamlContent);
 
 const validateSchema = (req, res, next) => {
   const validation = validate({ body: schema });
