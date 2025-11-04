@@ -66,7 +66,7 @@ describe('POST /consults', () => {
                __v: 0
          });
             expect(patientObject).toEqual({
-               _id: dataBaseDoctor._id,
+               _id: dataBasePatient._id,
                name: "patient 1",
                age: 20,
                consultIds: [newConsultId],
