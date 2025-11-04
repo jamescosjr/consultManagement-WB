@@ -22,49 +22,57 @@ afterAll(async () => {
 describe('POST /consults', () => {
     describe("success cases", () => {
         it("should create a new consult", async () => {
-    const doctor = new Doctor({
-        name: "doctor 1",
-        specialty: "specialty 1",
-    });
-    const dataBaseDoctor = await doctor.save();
+            const doctor = new Doctor({
+                name: "doctor 1",
+             specialty: "specialty 1",
+            });
+            const dataBaseDoctor = await doctor.save();
 
-    const patient = new Patient({
-        name: "patient 1",
-        age: 20,
-    });
-    const dataBasePatient = await patient.save();
+         const patient = new Patient({
+                name: "patient 1",
+                age: 20,
+            });
+         const dataBasePatient = await patient.save();
 
-    const consult = {
-        date: new Date(),
-        patientId: dataBasePatient._id,
-        doctorId: dataBaseDoctor._id,
-        description: "description 1",
-    };
+            const consult = {
+                date: new Date(),
+                patientId: dataBasePatient._id,
+                doctorId: dataBaseDoctor._id,
+                description: "description 1",
+         };
 
-    const response = await supertest(app).post("/consults").send(consult);
+         const response = await supertest(app).post("/consults").send(consult);
 
-    const newDoctor = await getDoctorById(dataBaseDoctor._id); 
-    const newPatient = await getPatientById(dataBasePatient._id);
+         const newDoctor = await getDoctorById(dataBaseDoctor._id); 
+         const newPatient = await getPatientById(dataBasePatient._id);
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("_id");
-    expect(response.body).toHaveProperty("date");
-    expect(response.body).toHaveProperty("patientId");
-    expect(response.body).toHaveProperty("doctorId");
-    expect(response.body).toHaveProperty("description");
+         expect(response.status).toBe(201);
+         expect(response.body).toHaveProperty("_id");
+         expect(response.body).toHaveProperty("date");
+         expect(response.body).toHaveProperty("patientId");
+         expect(response.body).toHaveProperty("doctorId");
+         expect(response.body).toHaveProperty("description");
 
-    const doctorObject = newDoctor.toObject();
+            const doctorObject = newDoctor.toObject();
+            const patientObject =newPatient.toObject();
 
-    const newConsultId = new mongoose.Types.ObjectId(response.body._id);
+            const newConsultId = new mongoose.Types.ObjectId(response.body._id);
 
-    expect(doctorObject).toEqual({
-        _id: dataBaseDoctor._id,
-        name: "doctor 1",
-        specialty: "specialty 1",
-        consultIds: [newConsultId],
-        __v: 0
-    });
-});
+            expect(doctorObject).toEqual({
+               _id: dataBaseDoctor._id,
+               name: "doctor 1",
+               specialty: "specialty 1",
+               consultIds: [newConsultId],
+               __v: 0
+         });
+            expect(patientObject).toEqual({
+               _id: dataBaseDoctor._id,
+               name: "patient 1",
+               age: 20,
+               consultIds: [newConsultId],
+               __v: 0
+         });
+        });
     });
 
     describe("error cases", () => {
