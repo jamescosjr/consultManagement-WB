@@ -13,7 +13,7 @@ import {
 import { NotFoundError } from "../error/customErros.js";
 import { Patient } from "../../infrastructure/schemas/patient.schema.js";
 import { Doctor } from "../../infrastructure/schemas/doctor.schema.js";
-import { updatePatientById } from "../../infrastructure/repositories/patient-repositories/patient.repository.write.js";
+import { updateDoctorById } from "../../infrastructure/repositories/doctor-repositories/doctor.repository.write.js"; 
 import { updatePatientById } from "../../infrastructure/repositories/patient-repositories/patient.repository.write.js";
 
 export async function createConsultService({date, doctorId, patientId, description}) {
