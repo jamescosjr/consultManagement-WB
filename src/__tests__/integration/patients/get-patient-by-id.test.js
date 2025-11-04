@@ -31,6 +31,7 @@ describe("GET /patients/id/:id", () => {
                 _id: expect.any(String),
                 name: "patient 1",
                 age: 20, 
+                consultIds: [],
                 __v: 0,
             });
         });

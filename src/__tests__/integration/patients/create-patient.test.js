@@ -29,6 +29,7 @@ describe('POST /patients', () => {
                 _id: expect.any(String),
                 name: "patient 1",
                 age: 30,
+                consultIds: [],
                 __v:0,
             }));
         });
