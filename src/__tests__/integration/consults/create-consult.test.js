@@ -20,47 +20,48 @@ afterAll(async () => {
 describe('POST /consults', () => {
     describe("success cases", () => {
         it("should create a new consult", async () => {
-            const doctor = new Doctor({
-                            name: "doctor 1",
-                            specialty: "specialty 1",
-                        });
-
-            const dataBaseDoctor = await doctor.save();
-
-            const patient = new Patient({
-                            name: "patient 1",
-                            age: 20,
-                        });
-
-            const dataBasePatient = await patient.save();
-
-            const consult = {
-                date: new Date(),
-                patientId: dataBasePatient._id,
-                doctorId: dataBaseDoctor._id,
-                description: "description 1",
-            };
-
-            const response = await supertest(app).post("/consults").send(consult)
-
-            const newDoctor = await getDoctorById(dataBaseDoctor._id)
-
-            expect(response.status).toBe(201);
-            expect(response.body).toHaveProperty("_id");
-            expect(response.body).toHaveProperty("date");
-            expect(response.body).toHaveProperty("patientId");
-            expect(response.body).toHaveProperty("doctorId");
-            expect(response.body).toHaveProperty("description");
-            console.warn(dataBaseDoctor);
-            expect(newDoctor).toEqual({
-                _id: expect.any(String),
-                name: "doctor 1",
-                specialty: "specialty 1",
-                consultIds: [expect.any(String)],
-                __v: 0
-            })
-        });
+    const doctor = new Doctor({
+        name: "doctor 1",
+        specialty: "specialty 1",
     });
+    const dataBaseDoctor = await doctor.save();
+
+    const patient = new Patient({
+        name: "patient 1",
+        age: 20,
+    });
+    const dataBasePatient = await patient.save();
+
+    const consult = {
+        date: new Date(),
+        patientId: dataBasePatient._id,
+        doctorId: dataBaseDoctor._id,
+        description: "description 1",
+    };
+
+    const response = await supertest(app).post("/consults").send(consult);
+
+    const newDoctor = await getDoctorById(dataBaseDoctor._id); 
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("_id");
+    expect(response.body).toHaveProperty("date");
+    expect(response.body).toHaveProperty("patientId");
+    expect(response.body).toHaveProperty("doctorId");
+    expect(response.body).toHaveProperty("description");
+
+    const doctorObject = newDoctor.toObject();
+
+    const newConsultId = new mongoose.Types.ObjectId(response.body._id);
+
+    expect(doctorObject).toEqual({
+        _id: dataBaseDoctor._id,
+        name: "doctor 1",
+        specialty: "specialty 1",
+        consultIds: [newConsultId],
+        __v: 0
+    });
+});
 
     describe("error cases", () => {
         it("should return 404 if patient not found", async () => {
