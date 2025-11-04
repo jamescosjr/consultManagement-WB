@@ -51,7 +51,7 @@ describe('POST /consults', () => {
             expect(dataBaseDoctor).toEqual({
                 name: "doctor 1",
                 specialty: "specialty 1",
-                consultIds: [expect.any(string)]
+                consultIds: [response.body._id]
             })
         });
     });
