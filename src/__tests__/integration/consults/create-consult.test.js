@@ -43,7 +43,7 @@ describe('POST /consults', () => {
 
             const response = await supertest(app).post("/consults").send(consult)
 
-            const newDoctor = await getDoctorById(dataBaseDoctor)
+            const newDoctor = await getDoctorById(dataBaseDoctor._id)
 
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty("_id");
