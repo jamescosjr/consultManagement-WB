@@ -53,21 +53,15 @@ describe('POST /consults', () => {
     expect(response.body).toHaveProperty("doctorId");
     expect(response.body).toHaveProperty("description");
 
-    // --- CORREÇÃO AQUI ---
-
-    // 1. Converta para objeto simples
     const doctorObject = newDoctor.toObject();
 
-    // 2. O ID da consulta criada (da resposta da API)
-    //    O Mongoose armazena como ObjectId, então precisamos comparar ObjectId com ObjectId
     const newConsultId = new mongoose.Types.ObjectId(response.body._id);
 
-    // 3. Compare o objeto simples
     expect(doctorObject).toEqual({
-        _id: dataBaseDoctor._id, // Compare com o ID original (ObjectId)
+        _id: dataBaseDoctor._id,
         name: "doctor 1",
         specialty: "specialty 1",
-        consultIds: [newConsultId], // Compare com o novo ID (ObjectId)
+        consultIds: [newConsultId],
         __v: 0
     });
 });
