@@ -13,6 +13,7 @@ import {
 import { NotFoundError } from "../error/customErros.js";
 import { Patient } from "../../infrastructure/schemas/patient.schema.js";
 import { Doctor } from "../../infrastructure/schemas/doctor.schema.js";
+import { updatePatientById } from "../../infrastructure/repositories/patient-repositories/patient.repository.write.js";
 
 export async function createConsultService({date, doctorId, patientId, description}) {
     const patientExists = await Patient.findById(patientId).lean();
@@ -30,11 +31,8 @@ export async function createConsultService({date, doctorId, patientId, descripti
         patientExists.consultIds.push(consult._id);
         doctorExists.consultIds.push(consult._id);
 
-        await Promise.all([
-            patientExists.save(),
-            doctorExists.save()
-        ]);
-
+       await updateDoctorById(doctorExists._id);
+       await updatePatientById(patientExists._id)
         return consult;
     } catch (error) {
         throw new AppError(error.message || 'Error creating the Doctor', 500);
