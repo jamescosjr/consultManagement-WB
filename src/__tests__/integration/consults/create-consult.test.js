@@ -5,6 +5,7 @@ import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
 import { getDoctorById } from "../../../infrastructure/repositories/doctor-repositories/doctor.repository.read";
 import mongoose from "mongoose";
+import { getPatientById } from "../../../infrastructure/repositories/patient-repositories/patient.repository.read";
 
 beforeAll(async () => {
     await dbHandler.connect();
@@ -42,10 +43,9 @@ describe('POST /consults', () => {
 
     const response = await supertest(app).post("/consults").send(consult);
 
-    // Busque o médico novamente (correto!)
     const newDoctor = await getDoctorById(dataBaseDoctor._id); 
+    const newPatient = await getPatientById(dataBasePatient._id);
 
-    // Verificações da Resposta (correto!)
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("_id");
     expect(response.body).toHaveProperty("date");
