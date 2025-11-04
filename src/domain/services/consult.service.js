@@ -31,7 +31,10 @@ export async function createConsultService({date, doctorId, patientId, descripti
 
         patientExists.consultIds.push(consult._id);
         doctorExists.consultIds.push(consult._id);
-        
+
+        await updateDoctorById(doctorExists._id);
+        await updatePatientById(patientExists._id)
+
         return consult;
     } catch (error) {
         throw new AppError(error.message || 'Error creating the Doctor', 500);
