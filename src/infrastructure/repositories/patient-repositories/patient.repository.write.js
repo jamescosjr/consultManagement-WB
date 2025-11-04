@@ -13,9 +13,12 @@ export async function createPatient({ name, age }){
     }
 }
 
-export async function updatePatientById(id, updateData){
+export async function updatePatientById(id, updateData, session = null) {
     try {
-        return await Patient.findByIdAndUpdate(id, updateData, { new: true })
+        return await Patient.findByIdAndUpdate(id, updateData, { 
+            new: true, 
+            session: session
+        });
     } catch (error) {
         throw new AppError(error.message || 'Database error', 500);
     }
