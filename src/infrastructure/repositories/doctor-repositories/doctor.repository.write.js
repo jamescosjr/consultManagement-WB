@@ -13,9 +13,9 @@ export async function createDoctor({ name, specialty }){
     }
 }
 
-export async function updateDoctorById(id, { name, specialty }){
+export async function updateDoctorById(id, updateData){
     try {
-        return await Doctor.findByIdAndUpdate(id, { name, specialty }, { new: true })
+        return await Doctor.findByIdAndUpdate(id, updateData, { new: true })
     } catch (error) {
         throw new AppError(error.message || 'Database error', 500);
     }
