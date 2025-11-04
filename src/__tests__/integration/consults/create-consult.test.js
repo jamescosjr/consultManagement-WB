@@ -48,6 +48,7 @@ describe('POST /consults', () => {
             expect(response.body).toHaveProperty("patientId");
             expect(response.body).toHaveProperty("doctorId");
             expect(response.body).toHaveProperty("description");
+            console.warn(dataBaseDoctor);
             expect(dataBaseDoctor).toEqual({
                 _id: expect.any(String),
                 name: "doctor 1",
