@@ -285,6 +285,9 @@ components:
           type: string
         age:
           type: integer
+        consultIds:
+          type: array
+          items: string
     Doctor:
       type: object
       properties:
@@ -292,6 +295,9 @@ components:
           type: string
         specialty:
           type: string
+        consultIds:
+          type: array
+          items: string
     Consult:
       type: object
       properties:
