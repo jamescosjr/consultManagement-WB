@@ -48,6 +48,11 @@ describe('POST /consults', () => {
             expect(response.body).toHaveProperty("patientId");
             expect(response.body).toHaveProperty("doctorId");
             expect(response.body).toHaveProperty("description");
+            expect(dataBaseDoctor).toEqual({
+                name: "doctor 1",
+                specialty: "specialty 1",
+                consultIds: [response.body._id]
+            })
         });
     });
 
