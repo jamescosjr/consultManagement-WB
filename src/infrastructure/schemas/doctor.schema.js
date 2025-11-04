@@ -8,6 +8,11 @@ export const doctorSchema = new mongoose.Schema({
     specialty: {
         type: String,
         required: true
+    },
+    consultIds: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: `Consult`,
+        default: []
     }
 })
 
