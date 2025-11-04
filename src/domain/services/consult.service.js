@@ -32,8 +32,8 @@ export async function createConsultService({date, doctorId, patientId, descripti
         patientExists.consultIds.push(consult._id);
         doctorExists.consultIds.push(consult._id);
 
-        await updateDoctorById(doctorExists._id);
-        await updatePatientById(patientExists._id)
+        await updateDoctorById(doctorExists._id, doctorExists);
+        await updatePatientById(patientExists._id, patientExists)
 
         return consult;
     } catch (error) {
