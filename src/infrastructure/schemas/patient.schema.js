@@ -8,6 +8,11 @@ export const patientSchema = new mongoose.Schema({
     age: {
         type: Number,
         required: true
+    },
+    consultIds: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: `Consult`,
+        default: []
     }
 })
 
