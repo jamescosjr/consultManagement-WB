@@ -62,6 +62,7 @@ describe('POST /consults', () => {
         __v: 0
     });
 });
+});
 
     describe("error cases", () => {
         it("should return 404 if patient not found", async () => {
