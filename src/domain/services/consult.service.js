@@ -25,7 +25,17 @@ export async function createConsultService({date, doctorId, patientId, descripti
             throw new NotFoundError("Doctor not found");
         }
     try {
-        return await createConsult({date, doctorId, patientId, description});
+        const consult = await createConsult({date, doctorId, patientId, description});
+
+        patientExists.consultIds.push(consult._id);
+        doctorExists.consultIds.push(consult._id);
+
+        await Promise.all([
+            patientExists.save(),
+            doctorExists.save()
+        ]);
+
+        return consult;
     } catch (error) {
         throw new AppError(error.message || 'Error creating the Doctor', 500);
     }
