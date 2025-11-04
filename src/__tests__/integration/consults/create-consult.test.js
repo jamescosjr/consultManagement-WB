@@ -3,6 +3,7 @@ import { app } from "../../../../server";
 const dbHandler = require('../../../../jest/jest.setup');
 import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
+import { getDoctorById } from "../../../infrastructure/repositories/doctor-repositories/doctor.repository.read";
 
 beforeAll(async () => {
     await dbHandler.connect();
@@ -42,6 +43,8 @@ describe('POST /consults', () => {
 
             const response = await supertest(app).post("/consults").send(consult)
 
+            const newDoctor = await getDoctorById(dataBaseDoctor)
+
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty("_id");
             expect(response.body).toHaveProperty("date");
@@ -49,7 +52,7 @@ describe('POST /consults', () => {
             expect(response.body).toHaveProperty("doctorId");
             expect(response.body).toHaveProperty("description");
             console.warn(dataBaseDoctor);
-            expect(dataBaseDoctor).toEqual({
+            expect(newDoctor).toEqual({
                 _id: expect.any(String),
                 name: "doctor 1",
                 specialty: "specialty 1",
