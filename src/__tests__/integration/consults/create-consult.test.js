@@ -19,7 +19,7 @@ afterAll(async () => {
 
 describe('POST /consults', () => {
     describe("success cases", () => {
-        it("should create a new consult", async () => {
+    it("should create a new consult", async () => {
     const doctor = new Doctor({
         name: "doctor 1",
         specialty: "specialty 1",
