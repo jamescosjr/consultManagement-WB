@@ -1,15 +1,15 @@
 import { Consult } from '../../schemas/consult.schema.js';
 
-export async function createConsult({ date, doctorId, patientId, description }) {
+export async function createConsult({ date, doctorId, patientId, description }, session = null) {
     try {
-        const newConsult = Consult({
+        const newConsult = new Consult({
             date,
             doctorId,
             patientId,
             description
         });
     
-        return newConsult.save();
+        return newConsult.save({ session }); 
     } catch (error) {
         throw new AppError(error.message || 'Database error', 500);
     }
