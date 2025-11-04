@@ -4,6 +4,7 @@ const dbHandler = require('../../../../jest/jest.setup');
 import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
 import { getDoctorById } from "../../../infrastructure/repositories/doctor-repositories/doctor.repository.read";
+import mongoose from "mongoose";
 
 beforeAll(async () => {
     await dbHandler.connect();
