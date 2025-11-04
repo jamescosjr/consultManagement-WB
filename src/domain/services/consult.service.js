@@ -28,12 +28,15 @@ export async function createConsultService({date, doctorId, patientId, descripti
         }
     try {
         const consult = await createConsult({date, doctorId, patientId, description});
+        
+        const updateOperation = {
+            $push: { consultIds: consult._id }
+        };
 
-        patientExists.consultIds.push(consult._id);
-        doctorExists.consultIds.push(consult._id);
-
-        await updateDoctorById(doctorExists._id, doctorExists);
-        await updatePatientById(patientExists._id, patientExists)
+        await Promise.all([
+            updateDoctorById(doctorId, updateOperation),
+            updatePatientById(patientId, updateOperation)
+        ]);
 
         return consult;
     } catch (error) {
