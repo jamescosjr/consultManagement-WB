@@ -91,6 +91,7 @@ describe('POST /consults', () => {
                 patientId: "67aa3327ac2f8b10df67f360",
                 doctorId: dataBaseDoctor._id,
                 description: "description 1",
+                shift: 'MORNING'
             };
 
             const response = await supertest(app).post("/consults").send(consult)
