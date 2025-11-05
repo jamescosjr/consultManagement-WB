@@ -26,6 +26,7 @@ export async function createConsultService({date, doctorId, patientId, descripti
         if (!doctorExists) {
             throw new NotFoundError("Doctor not found");
         }
+
     try {
         const consult = await createConsult({date, doctorId, patientId, description});
         
@@ -44,31 +45,34 @@ export async function createConsultService({date, doctorId, patientId, descripti
     }
 }
 
-export async function updateConsultByIdService(id, {date, doctorId, patientId, description}) {
-    const patientExists = await Patient.findById(patientId).lean();
-    if (!patientExists) {
-        throw new NotFoundError("Patient not found");
-    }
+// export async function updateConsultByIdService(id, {date, doctorId, patientId, description}) {
 
-    const doctorExists = await Doctor.findById(doctorId).lean();
-    if (!doctorExists) {
-        throw new NotFoundError("Doctor not found");
-    }
-    try {
-        const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description});
+//     const currentConsult = await getConsultById(id);
 
-        const updateOperation = {
-            $push: { consultIds: consult._id }
-        };
+//     const patientExists = await Patient.findById(patientId).lean();
+//     if (!patientExists) {
+//         throw new NotFoundError("Patient not found");
+//     }
 
-        await Promise.all([
-            updateDoctorById(doctorId, updateOperation),
-            updatePatientById(patientId, updateOperation)
-        ]);
-    } catch (error) {
-        throw new AppError(error.message || 'Error updating the Doctor', 500);
-    }
-}
+//     const doctorExists = await Doctor.findById(doctorId).lean();
+//     if (!doctorExists) {
+//         throw new NotFoundError("Doctor not found");
+//     }
+//     try {
+//         const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description});
+
+//         const updateOperation = {
+//             $push: { consultIds: consult._id }
+//         };
+
+//         await Promise.all([
+//             updateDoctorById(doctorId, updateOperation),
+//             updatePatientById(patientId, updateOperation)
+//         ]);
+//     } catch (error) {
+//         throw new AppError(error.message || 'Error updating the Doctor', 500);
+//     }
+// }
 
 export async function deleteConsultByIdService(id) {
     try {
