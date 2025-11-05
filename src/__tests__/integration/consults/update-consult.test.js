@@ -30,10 +30,9 @@ describe("PUT/ consults/:id", () => {
             const patient = new Patient({ 
                 name: "Patient", 
                 age: 20 
-            })
-            const dataBasePatient = await patient.save();
+            });
 
-            console.warn(dataBasePatient)
+            const dataBasePatient = await patient.save();
 
             const consult = new Consult ({
                  doctorId: dataBaseDoctor._id, 
