@@ -45,10 +45,10 @@ export async function createConsultService({date, doctorId, patientId, descripti
     }
 }
 
-export async function updateConsultByIdService(id, {date, doctorId, patientId, description}) {
+export async function updateConsultByIdService(id, {date, doctorId, patientId, description, shift}) {
 
     const currentConsult = await getConsultById(id);
-    
+
     if(!currentConsult) {
         throw new NotFoundError("Consult not found")
     }
