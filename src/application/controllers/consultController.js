@@ -30,9 +30,9 @@ export async function createConsultController(req, res, next) {
 
 export async function updateConsultByIdController(req, res, next) {
     const { id } = req.params;
-    const { date, doctorId, patientId, description } = req.body;
+    const { date, doctorId, patientId, description, shift } = req.body;
 
-    const validation = validateConsultData(date, doctorId, patientId, description);
+    const validation = validateConsultData(date, doctorId, patientId, description, shift);
       
         if(!validation.valid){
             return next(new ValidationError(validation.message));
