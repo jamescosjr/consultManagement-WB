@@ -16,7 +16,7 @@ import { Doctor } from "../../infrastructure/schemas/doctor.schema.js";
 import { updateDoctorById } from "../../infrastructure/repositories/doctor-repositories/doctor.repository.write.js"; 
 import { updatePatientById } from "../../infrastructure/repositories/patient-repositories/patient.repository.write.js";
 
-export async function createConsultService({date, doctorId, patientId, description}) {
+export async function createConsultService({date, doctorId, patientId, description, shift}) {
     const patientExists = await Patient.findById(patientId).lean();
         if (!patientExists) {
             throw new NotFoundError("Patient not found");
@@ -28,7 +28,7 @@ export async function createConsultService({date, doctorId, patientId, descripti
         }
 
     try {
-        const consult = await createConsult({date, doctorId, patientId, description});
+        const consult = await createConsult({date, doctorId, patientId, description, shift});
         
         const updateOperation = {
             $push: { consultIds: consult._id }
