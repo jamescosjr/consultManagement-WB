@@ -1,12 +1,13 @@
 import { Consult } from '../../schemas/consult.schema.js';
 
-export async function createConsult({ date, doctorId, patientId, description }, session = null) {
+export async function createConsult({ date, doctorId, patientId, description, shift }, session = null) {
     try {
         const newConsult = new Consult({
             date,
             doctorId,
             patientId,
-            description
+            description,
+            shift
         });
     
         return newConsult.save({ session }); 
