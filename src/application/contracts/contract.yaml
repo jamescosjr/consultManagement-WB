@@ -310,3 +310,5 @@ components:
           type: string
         description:
           type: string
+        shift: 
+          type: string
