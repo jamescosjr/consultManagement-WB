@@ -46,6 +46,7 @@ describe("GET/ consults/doctor/:doctorId", () => {
                 doctorId: doctor._id,
                 patientId: patient._id,
                 description: "Consult Description",
+                shift: 'MORNING'
             });
 
             await consult.save();
@@ -55,6 +56,7 @@ describe("GET/ consults/doctor/:doctorId", () => {
                 doctorId: doctor._id,
                 patientId: patient._id,
                 description: "Consult Description",
+                shift: 'MORNING'
             });
 
             await consult2.save();
@@ -64,6 +66,7 @@ describe("GET/ consults/doctor/:doctorId", () => {
                 doctorId: doctor2._id,
                 patientId: patient._id,
                 description: "Consult Description",
+                shift: 'MORNING'
             });
 
             await consult3.save();
