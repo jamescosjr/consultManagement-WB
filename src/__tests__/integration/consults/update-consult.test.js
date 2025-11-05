@@ -74,7 +74,7 @@ describe("PUT/ consults/:id", () => {
                 patientId: dataBasePatient._id, 
                 date: new Date(), 
                 description: "description 2",
-                shift: 'MORNING'
+                shift: "MORNING"
             }
 
             const response = await supertest(app).put(`/consults/67aa3327ac2f8b10df67f360`).send(updatedConsult);
