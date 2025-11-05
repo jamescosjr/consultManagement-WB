@@ -59,11 +59,21 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
         throw new NotFoundError("Doctor not found");
     }
     try {
-        const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description});
-
         const updateOperation = {
             $push: { consultIds: consult._id }
         };
+
+        const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description});
+
+        if(currentConsult.doctorId !== doctorId ) {
+            await updateDoctorById(doctorId, updateOperation)
+        };
+
+        if(currentConsult.patientId !== patientId ) {
+            updatePatientById(patientId, updateOperation)
+        }
+
+        
 
         await Promise.all([
             updateDoctorById(doctorId, updateOperation),
