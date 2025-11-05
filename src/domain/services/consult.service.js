@@ -71,14 +71,7 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
 
         if(currentConsult.patientId !== patientId ) {
             updatePatientById(patientId, updateOperation)
-        }
-
-        
-
-        await Promise.all([
-            updateDoctorById(doctorId, updateOperation),
-            updatePatientById(patientId, updateOperation)
-        ]);
+        };
     } catch (error) {
         throw new AppError(error.message || 'Error updating the Doctor', 500);
     }
