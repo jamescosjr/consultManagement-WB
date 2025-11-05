@@ -4,6 +4,9 @@ const dbHandler = require('../../../../jest/jest.setup');
 import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
 import { Consult } from "../../../infrastructure/schemas/consult.schema";
+import { createDoctorService } from "../../../domain/services/doctor.service";
+import { createPatientService } from "../../../domain/services/patient.service";
+import { createConsult } from "../../../infrastructure/repositories/consult-repositories/consult.repository.write";
 
 beforeAll(async () => {
     await dbHandler.connect();
@@ -25,14 +28,14 @@ describe("PUT/ consults/:id", () => {
                 specialty: "specialty 1" 
             });
 
-            const dataBaseDoctor = await doctor.save();
+            const dataBaseDoctor = await createDoctorService(doctor);
 
             const patient = new Patient({ 
                 name: "Patient", 
                 age: 20 
             });
 
-            const dataBasePatient = await patient.save();
+            const dataBasePatient = await createPatientService(patient);
 
             const consult = new Consult ({
                  doctorId: dataBaseDoctor._id, 
@@ -42,7 +45,7 @@ describe("PUT/ consults/:id", () => {
                  shift: 'MORNING'
             });
 
-            const dataBaseConsult = await consult.save();
+            const dataBaseConsult = await createConsult(consult);
 
             const updatedConsult = { 
                 doctorId: dataBaseDoctor.id, 
