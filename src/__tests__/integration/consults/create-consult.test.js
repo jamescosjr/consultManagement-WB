@@ -53,7 +53,7 @@ describe('POST /consults', () => {
          expect(response.body).toHaveProperty("patientId");
          expect(response.body).toHaveProperty("doctorId");
          expect(response.body).toHaveProperty("description");
-         EXPECT(response.body).toHaveProperty("shift");
+         expect(response.body).toHaveProperty("shift");
 
             const doctorObject = newDoctor.toObject();
             const patientObject =newPatient.toObject();
