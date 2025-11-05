@@ -12,9 +12,9 @@ import { ValidationError, NotFoundError } from '../../domain/error/customErros.j
 import { validateConsultData } from '../../domain/validation/consult.js';
 
 export async function createConsultController(req, res, next) {
-    const { date, doctorId, patientId, description } = req.body;
+    const { date, doctorId, patientId, description, shift } = req.body;
 
-    const validation = validateConsultData(date, doctorId, patientId, description);
+    const validation = validateConsultData(date, doctorId, patientId, description, shift);
 
         if(!validation.valid){
             return next(new ValidationError(validation.message));
