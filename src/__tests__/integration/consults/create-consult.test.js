@@ -95,7 +95,7 @@ describe('POST /consults', () => {
 
             const consult = {
                 date: new Date(),
-                patientId: dataBasePatient._id,
+                patientId: "690bb578b6a84b86adf64364",
                 doctorId: dataBaseDoctor._id,
                 description: "description 1",
                 shift: 'MORNING'
