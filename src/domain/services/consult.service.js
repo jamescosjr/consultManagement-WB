@@ -63,7 +63,7 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
             $push: { consultIds: consult._id }
         };
 
-        const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description});
+        await updateConsultById(id, {date, doctorId, patientId, description});
 
         if(currentConsult.doctorId !== doctorId ) {
             await updateDoctorById(doctorId, updateOperation)
@@ -72,6 +72,7 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
         if(currentConsult.patientId !== patientId ) {
             updatePatientById(patientId, updateOperation)
         };
+
     } catch (error) {
         throw new AppError(error.message || 'Error updating the Doctor', 500);
     }
