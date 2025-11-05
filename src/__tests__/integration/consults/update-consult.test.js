@@ -109,7 +109,8 @@ describe("PUT/ consults/:id", () => {
                 doctorId: "67aa3327ac2f8b10df67f360", 
                 patientId: dataBasePatient._id, 
                 date: new Date(), 
-                description: "description 2" 
+                description: "description 2",
+                shift: 'MORNING'
             }
 
             const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).send(updatedConsult);
@@ -135,6 +136,7 @@ describe("PUT/ consults/:id", () => {
                  patientId: dataBasePatient._id, 
                  date: new Date(),
                  description: "description 1",
+                 shift: 'MORNING'
             });
 
             const dataBaseConsult = await consult.save();
@@ -143,7 +145,8 @@ describe("PUT/ consults/:id", () => {
                 doctorId: doctor.id, 
                 patientId: "67aa3327ac2f8b10df67f360", 
                 date: new Date(), 
-                description: "description 2" 
+                description: "description 2",
+                shift: 'MORNING'
             }
 
             const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).send(updatedConsult);
