@@ -5,6 +5,10 @@ export const consultSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    shift: {
+        type: String,
+        required: true
+    },
     doctorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Doctor',
