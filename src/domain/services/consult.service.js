@@ -66,7 +66,7 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
     }
     try {
         const updateOperation = {
-            $push: { consultIds: consult.id }
+            $push: { consultIds: id }
         };
 
         const consultUpdated = await updateConsultById(id, {date, doctorId, patientId, description, shift});
