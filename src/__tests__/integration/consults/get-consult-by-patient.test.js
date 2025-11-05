@@ -66,6 +66,7 @@ describe("GET/ consults/patient/:patientId", () => {
                 doctorId: doctor2._id,
                 patientId: patient._id,
                 description: "Consult Description",
+                shift: 'MORNING'
             });
 
             await consult3.save();
