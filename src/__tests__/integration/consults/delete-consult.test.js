@@ -38,6 +38,7 @@ describe('DELETE /consults/:id', () => {
                 patientId: dataBasePatient._id,
                 doctorId: dataBaseDoctor._id,
                 description: "description 1",
+                shift: 'MORNING'
             };
 
             const responseCreateConsult = await supertest(app).post("/consults").send(consult)
