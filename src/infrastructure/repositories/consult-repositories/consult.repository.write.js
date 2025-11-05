@@ -16,9 +16,9 @@ export async function createConsult({ date, doctorId, patientId, description, sh
     }
 }
 
-export async function updateConsultById(id, { date, doctorId, patientId, description }) {
+export async function updateConsultById(id, { date, doctorId, patientId, description, shift }) {
     try {
-        return Consult.findByIdAndUpdate(id, { date, doctorId, patientId, description }, { new: true });
+        return Consult.findByIdAndUpdate(id, { date, doctorId, patientId, description, shift }, { new: true });
     } catch (error) {
         throw new AppError(error.message || 'Database error', 500);
     }
