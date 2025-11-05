@@ -48,6 +48,9 @@ export async function createConsultService({date, doctorId, patientId, descripti
 export async function updateConsultByIdService(id, {date, doctorId, patientId, description}) {
 
     const currentConsult = await getConsultById(id);
+    if(!currentConsult) {
+        throw new NotFoundError("Consult not found")
+    }
 
     const patientExists = await Patient.findById(patientId).lean();
     if (!patientExists) {
