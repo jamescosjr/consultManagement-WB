@@ -1,4 +1,4 @@
-export function validateConsultData(date, doctorId, patientId, description) {
+export function validateConsultData(date, doctorId, patientId, description, shift) {
   if (typeof date !== 'string' || date.trim() === '') {
     return { valid: false, message: 'The date should be a valid string' };
   }
