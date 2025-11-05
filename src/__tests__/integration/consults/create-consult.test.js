@@ -86,9 +86,16 @@ describe('POST /consults', () => {
 
             const dataBaseDoctor = await doctor.save();
 
+            const patient = new Patient({
+                            name: "patient 1",
+                            age: 20,
+                        });
+
+            const dataBasePatient = await doctor.save();
+
             const consult = {
                 date: new Date(),
-                patientId: "67aa3327ac2f8b10df67f360",
+                patientId: dataBasePatient._id,
                 doctorId: dataBaseDoctor._id,
                 description: "description 1",
                 shift: 'MORNING'
