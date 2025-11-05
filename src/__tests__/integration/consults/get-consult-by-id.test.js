@@ -80,6 +80,7 @@ describe("GET/ consults/id/:id", () => {
                 doctorId: doctor._id.toString(),
                 patientId: patient._id.toString(),
                 description: "Consult Description",
+                shift: 'MORNING',
                 __v: 0,
             });
         });
