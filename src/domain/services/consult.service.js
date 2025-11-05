@@ -54,11 +54,13 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
     }
 
     const patientExists = await Patient.findById(patientId).lean();
+
     if (!patientExists) {
         throw new NotFoundError("Patient not found");
     }
 
     const doctorExists = await Doctor.findById(doctorId).lean();
+    
     if (!doctorExists) {
         throw new NotFoundError("Doctor not found");
     }
