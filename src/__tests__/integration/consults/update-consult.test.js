@@ -99,7 +99,8 @@ describe("PUT/ consults/:id", () => {
                  doctorId: dataBaseDoctor._id, 
                  patientId: dataBasePatient._id, 
                  date: new Date(), 
-                 description: "description 1" 
+                 description: "description 1",
+                 shift: 'MORNING'
             });
 
             const dataBaseConsult = await consult.save();
