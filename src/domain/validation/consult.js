@@ -15,8 +15,8 @@ export function validateConsultData(date, doctorId, patientId, description, shif
     return { valid: false, message: 'The description should be a valid string' };
   }
 
-  if ( shift !== 'MORNING' || shift !== 'AFTERNOON') {
-    return { valid: false, message: 'The description should be a valid string' };
+  if ( shift !== 'MORNING' && shift !== 'AFTERNOON') {
+    return { valid: false, message: 'The shift must be either MORNING or AFTERNOON' };
   }
 
   return { valid: true };
