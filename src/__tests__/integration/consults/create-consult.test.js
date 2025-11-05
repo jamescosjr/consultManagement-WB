@@ -36,6 +36,7 @@ describe('POST /consults', () => {
 
             const consult = {
                 date: new Date(),
+                shift: 'MORNING',
                 patientId: dataBasePatient._id,
                 doctorId: dataBaseDoctor._id,
                 description: "description 1",
@@ -52,6 +53,7 @@ describe('POST /consults', () => {
          expect(response.body).toHaveProperty("patientId");
          expect(response.body).toHaveProperty("doctorId");
          expect(response.body).toHaveProperty("description");
+         EXPECT(response.body).toHaveProperty("shift");
 
             const doctorObject = newDoctor.toObject();
             const patientObject =newPatient.toObject();
