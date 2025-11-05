@@ -44,8 +44,8 @@ describe("PUT/ consults/:id", () => {
             const dataBaseConsult = await consult.save();
 
             const updatedConsult = { 
-                doctorId: doctor.id, 
-                patientId: patient.id, 
+                doctorId: dataBaseDoctor.id, 
+                patientId: dataBasePatient.id, 
                 date: new Date(), 
                 description: "description 2",
                 shift: 'MORNING'
