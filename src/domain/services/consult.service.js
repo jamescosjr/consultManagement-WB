@@ -93,7 +93,22 @@ export async function updateConsultByIdService(id, {date, doctorId, patientId, d
 
 export async function deleteConsultByIdService(id) {
     try {
-        return await deleteConsultById(id);
+        const consult = await getConsultById(id);
+
+        if(!consult) {
+            throw new NotFoundError("Consult not found")
+        }
+
+        const removeOperations = {
+            $remove: { consultIds: id }
+        }
+
+        const consultDeleted = await deleteConsultById(id);
+
+        await updateDoctorById(consult._id, removeOperations);
+        await updatePatientById(consult._id, removeOperations);
+
+        return consultDeleted;
     } catch (error) {
         throw new AppError(error.message || 'Error deleting the Doctor', 500);
     }
