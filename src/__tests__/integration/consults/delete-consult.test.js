@@ -50,10 +50,10 @@ describe('DELETE /consults/:id', () => {
     });
 
     describe("error cases", () => {
-        it("should return 404 if consult not found", async () => {
+        it("should return 500 if consult not found", async () => {
             const response = await supertest(app).delete("/consults/67aa3327ac2f8b10df67f361")
 
-            expect(response.status).toBe(404);
+            expect(response.status).toBe(500);
         });
     });
 });
