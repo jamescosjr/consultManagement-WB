@@ -29,7 +29,7 @@ export const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 userSchema.methods.comparePassword = function(candidatePassword) {
-    return bcrypt.compar (candidatePassword, this.passwordHash);
+    return bcrypt.compare(candidatePassword, this.passwordHash);
 };
 
 export const User = mongoose.model('User', userSchema);
