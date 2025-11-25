@@ -1,0 +1,136 @@
+name: Feature Request
+description: Sugerir uma nova funcionalidade
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por sugerir uma nova funcionalidade! Por favor, preencha os campos abaixo.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema Relacionado
+      description: Esta feature resolve algum problema? Descreva.
+      placeholder: "Estou sempre frustrado quando..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução Proposta
+      description: Descreva a solução que você gostaria de ver
+      placeholder: Descreva a funcionalidade desejada
+    validations:
+      required: true
+
+  - type: dropdown
+    id: entity
+    attributes:
+      label: Entidade Afetada
+      description: Qual entidade esta feature afeta?
+      options:
+        - Patient
+        - Doctor
+        - Consult
+        - User/Auth
+        - Nova Entidade
+        - Infraestrutura/Arquitetura
+        - Documentação
+        - Outro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de Feature
+      description: Que tipo de funcionalidade é esta?
+      options:
+        - Novo Endpoint
+        - Melhoria em Endpoint Existente
+        - Nova Validação
+        - Novo Middleware
+        - Melhoria de Performance
+        - Refatoração
+        - Documentação
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: Design da API (se aplicável)
+      description: Como você imagina a API para esta feature?
+      placeholder: |
+        ```
+        POST /novo-endpoint
+        Body: {
+          "campo": "valor"
+        }
+        Response: {
+          "resultado": "sucesso"
+        }
+        ```
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Impacto na Arquitetura
+      description: Como esta feature se encaixa na arquitetura atual?
+      placeholder: |
+        - Camadas afetadas: Application/Domain/Infrastructure
+        - Novos arquivos necessários
+        - Modificações em arquivos existentes
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Esta feature quebra compatibilidade?
+      options:
+        - label: Esta feature introduz breaking changes
+          required: false
+        - label: Esta feature requer migração de dados
+          required: false
+        - label: Esta feature requer atualização de dependências
+          required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas Consideradas
+      description: Descreva alternativas que você considerou
+      placeholder: Quais outras soluções você pensou?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Disposição para Implementar
+      description: Você gostaria de implementar esta feature?
+      options:
+        - label: Eu posso implementar esta feature
+          required: false
+        - label: Eu preciso de ajuda para implementar
+          required: false
+        - label: Eu prefiro que outra pessoa implemente
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informações Adicionais
+      description: Qualquer contexto adicional ou screenshots
+      placeholder: Adicione qualquer outro contexto relevante
+    validations:
+      required: false

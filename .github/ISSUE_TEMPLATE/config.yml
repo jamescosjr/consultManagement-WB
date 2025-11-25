@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentação
+    url: https://github.com/jamescosjr/consultManagement-WB/blob/main/AGENT.md
+    about: Consulte a documentação completa do projeto
+  - name: 💬 Discussões
+    url: https://github.com/jamescosjr/consultManagement-WB/discussions
+    about: Faça perguntas e discuta ideias com a comunidade
+  - name: 🚀 Quick Start
+    url: https://github.com/jamescosjr/consultManagement-WB/blob/main/QUICK_START.md
+    about: Guia rápido para começar a desenvolver
