@@ -1,0 +1,125 @@
+name: Bug Report
+description: Reportar um bug ou problema
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar um bug! Por favor, preencha os campos abaixo.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição do Bug
+      description: Descreva claramente o bug encontrado
+      placeholder: O que aconteceu?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento Esperado
+      description: O que você esperava que acontecesse?
+      placeholder: Descreva o comportamento esperado
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para Reproduzir
+      description: Como reproduzir o bug?
+      placeholder: |
+        1. Execute '...'
+        2. Faça requisição para '...'
+        3. Observe o erro '...'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: endpoint
+    attributes:
+      label: Endpoint Afetado
+      description: Qual endpoint está com problema?
+      options:
+        - /patients
+        - /doctors
+        - /consults
+        - /auth
+        - Outro (especificar abaixo)
+    validations:
+      required: false
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Request Exemplo
+      description: Cole um exemplo da requisição que causa o erro
+      placeholder: |
+        ```json
+        POST /patients
+        {
+          "name": "Test",
+          "age": 30
+        }
+        ```
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: response
+    attributes:
+      label: Response/Erro
+      description: Cole a resposta ou mensagem de erro
+      placeholder: |
+        ```json
+        {
+          "message": "Error message here"
+        }
+        ```
+      render: json
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Onde o bug ocorre?
+      options:
+        - Development
+        - Production
+        - Test
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      description: Qual versão do Node.js você está usando?
+      placeholder: "v18.0.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs Relevantes
+      description: Cole logs relevantes do servidor
+      placeholder: Cole os logs aqui
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informações Adicionais
+      description: Qualquer outra informação relevante
+      placeholder: Contexto adicional sobre o problema
+    validations:
+      required: false
