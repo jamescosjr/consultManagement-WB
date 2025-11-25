@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { ensureAuthenticated, ensureRoles } from '../middleware/authMiddleware.js';
+import { registerController } from '../controllers/authController.js';
 import {
     createPatientHandler,
     updatePatientHandler,
@@ -30,29 +32,32 @@ import {
 
 const router = Router();
 
-router.post('/consults', createConsultController);
+// Auth
+router.post('/auth/register', registerController);
+
+router.post('/consults', ensureAuthenticated, createConsultController);
 router.get('/consults/id/:id', getConsultByIdController);
 router.get('/consults/doctor/:doctorId', getConsultByDoctorIdController);
 router.get('/consults/patient/:patientId', getConsultByPatientIdController);
 router.get('/consults', getAllConsultController);
 router.get('/consults/date/:date', getConsultByDateController);
-router.put('/consults/:id', updateConsultByIdController);
-router.delete('/consults/:id', deleteConsultByIdController);
+router.put('/consults/:id', ensureAuthenticated, updateConsultByIdController);
+router.delete('/consults/:id', ensureAuthenticated, ensureRoles(['root','employee','doctor']), deleteConsultByIdController);
 
-router.post('/patients', createPatientHandler);
+router.post('/patients', ensureAuthenticated, ensureRoles(['root','employee']), createPatientHandler);
 router.get('/patients', listPatientsHandler);
 router.get('/patients/name/:name', findPatientByNameHandler);
 router.get('/patients/age/:age', listPatientsByAgeHandler);
 router.get('/patients/id/:id', getPatientByIdHandler);
-router.put('/patients/:id', updatePatientHandler);
-router.delete('/patients/:id', deletePatientHandler);
+router.put('/patients/:id', ensureAuthenticated, ensureRoles(['root','employee']), updatePatientHandler);
+router.delete('/patients/:id', ensureAuthenticated, ensureRoles(['root','employee']), deletePatientHandler);
 
-router.post('/doctors', createDoctorHandler);
+router.post('/doctors', ensureAuthenticated, ensureRoles(['root','employee']), createDoctorHandler);
 router.get('/doctors', listDoctorsHandler);
 router.get('/doctors/name/:name', findDoctorByNameHandler);
 router.get('/doctors/specialty/:specialty', listDoctorsBySpecialtyHandler);
 router.get('/doctors/id/:id', getDoctorByIdHandler);
-router.put('/doctors/:id', updateDoctorHandler);
-router.delete('/doctors/:id', deleteDoctorHandler);
+router.put('/doctors/:id', ensureAuthenticated, ensureRoles(['root','employee']), updateDoctorHandler);
+router.delete('/doctors/:id', ensureAuthenticated, ensureRoles(['root','employee']), deleteDoctorHandler);
 
 export default router;
