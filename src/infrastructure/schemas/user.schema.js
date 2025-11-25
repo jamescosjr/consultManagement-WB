@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { getDoctorByName } from '../repositories/doctor-repositories/doctor.repository.read';
+import { getDoctorByName } from '../repositories/doctor-repositories/doctor.repository.read.js';
 
 export const userSchema = new mongoose.Schema({
     name: {
