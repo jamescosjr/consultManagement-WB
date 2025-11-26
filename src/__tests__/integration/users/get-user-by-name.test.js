@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -20,44 +20,33 @@ describe("GET /users/name/:name", () => {
     let rootToken;
 
     beforeEach(async () => {
-        const rootPassword = await bcrypt.hash('RootPass123!', 12);
-        const rootUser = new User({
-            name: "Root User",
-            email: "root@test.com",
-            passwordHash: rootPassword,
-            role: "root"
-        });
-        await rootUser.save();
-
-        const rootLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+        const usersToCreate = [
+            {
                 name: "Root User",
                 email: "root@test.com",
-                password: "RootPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "root"
-            });
-        rootToken = rootLogin.body.token;
+            }
+        ];
 
         for (let i = 1; i <= 5; i++) {
-            const password = await bcrypt.hash(`JohnPass${i}123!`, 12);
-            const user = new User({
+            usersToCreate.push({
                 name: `John Doe ${i}`,
                 email: `john${i}@test.com`,
-                passwordHash: password,
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "client"
             });
-            await user.save();
         }
 
-        const password = await bcrypt.hash('JanePass123!', 12);
-        const janeUser = new User({
+        usersToCreate.push({
             name: "Jane Smith",
             email: "jane@test.com",
-            passwordHash: password,
+            passwordHash: MOCK_PASSWORD_HASH,
             role: "client"
         });
-        await janeUser.save();
+
+        const users = await User.insertMany(usersToCreate);
+        rootToken = generateToken(users[0]._id, users[0].role);
     });
 
     describe("success cases", () => {

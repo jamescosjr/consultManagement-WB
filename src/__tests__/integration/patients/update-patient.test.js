@@ -1,6 +1,8 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -16,6 +18,18 @@ afterAll(async () => {
 });
 
 describe("PUT /patients/:id", () => {
+    let rootToken;
+
+    beforeEach(async () => {
+        const rootUser = await User.create({
+            name: "Root User",
+            email: "root@test.com",
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: "root"
+        });
+        rootToken = generateToken(rootUser._id, rootUser.role);
+    });
+
     describe("success cases", () => {
         it ("should return a status 200 when update a patient", async () => {
             const patient = new Patient({
@@ -29,7 +43,10 @@ describe("PUT /patients/:id", () => {
                 age: 20,
             };
 
-            const response = await supertest(app).put(`/patients/${databasePatient._id}`).send(updatedPatient);
+            const response = await supertest(app)
+                .put(`/patients/${databasePatient._id}`)
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(updatedPatient);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual(expect.objectContaining(updatedPatient));
@@ -48,7 +65,10 @@ describe("PUT /patients/:id", () => {
                 age: 20,
             };
 
-            const response = await supertest(app).put(`/patients/${databasePatient._id}`).send(updatedPatient);
+            const response = await supertest(app)
+                .put(`/patients/${databasePatient._id}`)
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(updatedPatient);
 
             expect(response.status).toBe(400);
             expect(response.body. message).toEqual("The name should be a valid string");
@@ -65,7 +85,10 @@ describe("PUT /patients/:id", () => {
                 name: "Patient 2"
             };
 
-            const response = await supertest(app).put(`/patients/${databasePatient._id}`).send(updatedPatient);
+            const response = await supertest(app)
+                .put(`/patients/${databasePatient._id}`)
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(updatedPatient);
 
             expect(response.status).toBe(400);
             expect(response.body.message).toEqual("The age should be a valid number");

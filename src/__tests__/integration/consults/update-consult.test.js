@@ -4,6 +4,8 @@ const dbHandler = require('../../../../jest/jest.setup');
 import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
 import { Consult } from "../../../infrastructure/schemas/consult.schema";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 import { createDoctorService } from "../../../domain/services/doctor.service";
 import { createPatientService } from "../../../domain/services/patient.service";
 import { createConsult } from "../../../infrastructure/repositories/consult-repositories/consult.repository.write";
@@ -21,6 +23,19 @@ afterAll(async () => {
 });
 
 describe("PUT/ consults/:id", () => {
+    let rootToken;
+
+    beforeEach(async () => {
+        const rootUser = new User({
+            name: "Root User",
+            email: "root@test.com",
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: "root"
+        });
+        const savedUser = await rootUser.save();
+        rootToken = generateToken(savedUser._id, savedUser.role);
+    });
+
     describe("success cases", () => {
         it ("should update an existent consult", async () => {
             const doctor = new Doctor({ 
@@ -55,7 +70,7 @@ describe("PUT/ consults/:id", () => {
                 shift: 'MORNING'
             }
 
-            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).send(updatedConsult);
+            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).set('Authorization', `Bearer ${rootToken}`).send(updatedConsult);
             expect(response.status).toBe(200);
         });
     });
@@ -83,7 +98,7 @@ describe("PUT/ consults/:id", () => {
                 shift: 'MORNING'
             }
 
-            const response = await supertest(app).put(`/consults/67aa3327ac2f8b10df67f360`).send(updatedConsult);
+            const response = await supertest(app).put(`/consults/67aa3327ac2f8b10df67f360`).set('Authorization', `Bearer ${rootToken}`).send(updatedConsult);
             expect(response.status).toBe(404);
         });
 
@@ -119,7 +134,7 @@ describe("PUT/ consults/:id", () => {
                 shift: 'MORNING'
             }
 
-            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).send(updatedConsult);
+            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).set('Authorization', `Bearer ${rootToken}`).send(updatedConsult);
             expect(response.status).toBe(404);
         });
 
@@ -155,7 +170,7 @@ describe("PUT/ consults/:id", () => {
                 shift: 'MORNING'
             }
 
-            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).send(updatedConsult);
+            const response = await supertest(app).put(`/consults/${dataBaseConsult._id}`).set('Authorization', `Bearer ${rootToken}`).send(updatedConsult);
             expect(response.status).toBe(404);
         
         });

@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -21,33 +21,22 @@ describe("GET /users/email/:email", () => {
     let testUserEmail;
 
     beforeEach(async () => {
-        const rootPassword = await bcrypt.hash('RootPass123!', 12);
-        const rootUser = new User({
-            name: "Root User",
-            email: "root@test.com",
-            passwordHash: rootPassword,
-            role: "root"
-        });
-        await rootUser.save();
-
-        const rootLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+        const [rootUser] = await User.insertMany([
+            {
                 name: "Root User",
                 email: "root@test.com",
-                password: "RootPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "root"
-            });
-        rootToken = rootLogin.body.token;
-
-        const testPassword = await bcrypt.hash('TestPass123!', 12);
-        const testUser = new User({
-            name: "Test User",
-            email: "testuser@test.com",
-            passwordHash: testPassword,
-            role: "client"
-        });
-        await testUser.save();
+            },
+            {
+                name: "Test User",
+                email: "testuser@test.com",
+                passwordHash: MOCK_PASSWORD_HASH,
+                role: "client"
+            }
+        ]);
+        
+        rootToken = generateToken(rootUser._id, rootUser.role);
         testUserEmail = "testuser@test.com";
     });
 

@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -21,43 +21,23 @@ describe("GET /users", () => {
     let employeeToken;
 
     beforeEach(async () => {
-        const rootPassword = await bcrypt.hash('RootPass123!', 12);
-        const rootUser = new User({
-            name: "Root User",
-            email: "root@test.com",
-            passwordHash: rootPassword,
-            role: "root"
-        });
-        await rootUser.save();
-
-        const rootLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+        const [rootUser, employeeUser] = await User.insertMany([
+            {
                 name: "Root User",
                 email: "root@test.com",
-                password: "RootPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "root"
-            });
-        rootToken = rootLogin.body.token;
-
-        const employeePassword = await bcrypt.hash('EmployeePass123!', 12);
-        const employeeUser = new User({
-            name: "Employee User",
-            email: "employee@test.com",
-            passwordHash: employeePassword,
-            role: "employee"
-        });
-        await employeeUser.save();
-
-        const employeeLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+            },
+            {
                 name: "Employee User",
                 email: "employee@test.com",
-                password: "EmployeePass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "employee"
-            });
-        employeeToken = employeeLogin.body.token;
+            }
+        ]);
+        
+        rootToken = generateToken(rootUser._id, rootUser.role);
+        employeeToken = generateToken(employeeUser._id, employeeUser.role);
     });
 
     describe("success cases", () => {
@@ -81,16 +61,17 @@ describe("GET /users", () => {
         });
 
         it("should support pagination", async () => {
+            const usersToCreate = [];
+            
             for (let i = 1; i <= 15; i++) {
-                const password = await bcrypt.hash(`Password${i}123!`, 12);
-                const user = new User({
+                usersToCreate.push({
                     name: `User ${i}`,
                     email: `user${i}@test.com`,
-                    passwordHash: password,
+                    passwordHash: MOCK_PASSWORD_HASH,
                     role: "client"
                 });
-                await user.save();
             }
+            await User.insertMany(usersToCreate);
 
             const page1 = await supertest(app)
                 .get('/users?page=1&limit=10')
@@ -126,24 +107,13 @@ describe("GET /users", () => {
         });
 
         it("should return 403 when user is not root or employee", async () => {
-            const clientPassword = await bcrypt.hash('ClientPass123!', 12);
-            const clientUser = new User({
+            const [clientUser] = await User.insertMany([{
                 name: "Client User",
                 email: "client@test.com",
-                passwordHash: clientPassword,
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "client"
-            });
-            await clientUser.save();
-
-            const clientLogin = await supertest(app)
-                .post('/auth/register')
-                .send({
-                    name: "Client User",
-                    email: "client@test.com",
-                    password: "ClientPass123!",
-                    role: "client"
-                });
-            const clientToken = clientLogin.body.token;
+            }]);
+            const clientToken = generateToken(clientUser._id, clientUser.role);
 
             const response = await supertest(app)
                 .get('/users')

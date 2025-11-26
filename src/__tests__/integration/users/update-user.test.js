@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -22,44 +22,24 @@ describe("PUT /users/:id", () => {
     let testUserId;
 
     beforeEach(async () => {
-        const rootPassword = await bcrypt.hash('RootPass123!', 12);
-        const rootUser = new User({
-            name: "Root User",
-            email: "root@test.com",
-            passwordHash: rootPassword,
-            role: "root"
-        });
-        await rootUser.save();
-
-        const rootLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+        const [rootUser, testUser] = await User.insertMany([
+            {
                 name: "Root User",
                 email: "root@test.com",
-                password: "RootPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "root"
-            });
-        rootToken = rootLogin.body.token;
-
-        const testPassword = await bcrypt.hash('TestPass123!', 12);
-        const testUser = new User({
-            name: "Test User",
-            email: "test@test.com",
-            passwordHash: testPassword,
-            role: "client"
-        });
-        const savedUser = await testUser.save();
-        testUserId = savedUser._id.toString();
-
-        const userLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+            },
+            {
                 name: "Test User",
                 email: "test@test.com",
-                password: "TestPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "client"
-            });
-        userToken = userLogin.body.token;
+            }
+        ]);
+        
+        rootToken = generateToken(rootUser._id, rootUser.role);
+        testUserId = testUser._id.toString();
+        userToken = generateToken(testUser._id, testUser.role);
     });
 
     describe("success cases", () => {
@@ -156,14 +136,12 @@ describe("PUT /users/:id", () => {
         });
 
         it("should return 409 when email already exists", async () => {
-            const password = await bcrypt.hash('AnotherPass123!', 12);
-            const anotherUser = new User({
+            await User.insertMany([{
                 name: "Another User",
                 email: "another@test.com",
-                passwordHash: password,
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "client"
-            });
-            await anotherUser.save();
+            }]);
 
             const response = await supertest(app)
                 .put(`/users/${testUserId}`)

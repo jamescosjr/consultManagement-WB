@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -19,28 +19,19 @@ afterAll(async () => {
 describe("PUT /users/:id/password", () => {
     let userToken;
     let testUserId;
-    const currentPassword = 'CurrentPass123!';
+    // A senha que corresponde ao MOCK_PASSWORD_HASH usado nos testes
+    const currentPassword = 'TestPass123!';
 
     beforeEach(async () => {
-        const testPassword = await bcrypt.hash(currentPassword, 12);
-        const testUser = new User({
+        const [testUser] = await User.insertMany([{
             name: "Test User",
             email: "test@test.com",
-            passwordHash: testPassword,
+            passwordHash: MOCK_PASSWORD_HASH,
             role: "client"
-        });
-        const savedUser = await testUser.save();
-        testUserId = savedUser._id.toString();
-
-        const userLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
-                name: "Test User",
-                email: "test@test.com",
-                password: currentPassword,
-                role: "client"
-            });
-        userToken = userLogin.body.token;
+        }]);
+        
+        testUserId = testUser._id.toString();
+        userToken = generateToken(testUser._id, testUser.role);
     });
 
     describe("success cases", () => {

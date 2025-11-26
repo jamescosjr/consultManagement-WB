@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
 import { User } from "../../../infrastructure/schemas/user.schema";
-import bcrypt from 'bcryptjs';
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -22,53 +22,30 @@ describe("DELETE /users/:id", () => {
     let testUserId;
 
     beforeEach(async () => {
-        const rootPassword = await bcrypt.hash('RootPass123!', 12);
-        const rootUser = new User({
-            name: "Root User",
-            email: "root@test.com",
-            passwordHash: rootPassword,
-            role: "root"
-        });
-        await rootUser.save();
-
-        const rootLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+        const [rootUser, employeeUser, testUser] = await User.insertMany([
+            {
                 name: "Root User",
                 email: "root@test.com",
-                password: "RootPass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "root"
-            });
-        rootToken = rootLogin.body.token;
-
-        const employeePassword = await bcrypt.hash('EmployeePass123!', 12);
-        const employeeUser = new User({
-            name: "Employee User",
-            email: "employee@test.com",
-            passwordHash: employeePassword,
-            role: "employee"
-        });
-        await employeeUser.save();
-
-        const employeeLogin = await supertest(app)
-            .post('/auth/register')
-            .send({
+            },
+            {
                 name: "Employee User",
                 email: "employee@test.com",
-                password: "EmployeePass123!",
+                passwordHash: MOCK_PASSWORD_HASH,
                 role: "employee"
-            });
-        employeeToken = employeeLogin.body.token;
-
-        const testPassword = await bcrypt.hash('TestPass123!', 12);
-        const testUser = new User({
-            name: "Test User",
-            email: "test@test.com",
-            passwordHash: testPassword,
-            role: "client"
-        });
-        const savedUser = await testUser.save();
-        testUserId = savedUser._id.toString();
+            },
+            {
+                name: "Test User",
+                email: "test@test.com",
+                passwordHash: MOCK_PASSWORD_HASH,
+                role: "client"
+            }
+        ]);
+        
+        rootToken = generateToken(rootUser._id, rootUser.role);
+        employeeToken = generateToken(employeeUser._id, employeeUser.role);
+        testUserId = testUser._id.toString();
     });
 
     describe("success cases", () => {
