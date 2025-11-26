@@ -69,6 +69,7 @@ For detailed information about the project, please refer to:
    # Production mode
    npm start
    ```
+   Note: The server will run on `server.js` which imports from the src directory.
 7. Run tests:
    ```sh
    npm test
@@ -80,9 +81,11 @@ This project follows Clean Architecture principles with three main layers:
 
 ```
 src/
-├── application/       # Controllers, Routes, Middleware
-├── domain/           # Business Logic, Services, Validations
-└── infrastructure/   # Database, Schemas, Repositories
+├── __tests__/        # Integration tests
+├── application/      # Controllers, Routes, Middleware
+├── domain/          # Business Logic, Services, Validations
+├── infrastructure/  # Database, Schemas, Repositories
+└── test-helpers/    # Test utilities and helpers
 ```
 
 For detailed architecture information, see [AGENT.md](./AGENT.md).
@@ -95,7 +98,6 @@ For complete API documentation with examples, see [API_REFERENCE.md](./API_REFER
 
 #### Authentication
 - **POST** `/auth/register` - Register new user
-- **POST** `/auth/login` - User login
 
 #### Consultations
 - **POST** `/consults` - Create a new consultation
@@ -124,6 +126,16 @@ For complete API documentation with examples, see [API_REFERENCE.md](./API_REFER
 - **DELETE** `/doctors/{id}` - Delete a doctor
 - **GET** `/doctors/name/{name}` - Get a doctor by name
 - **GET** `/doctors/specialty/{specialty}` - Get doctors by specialty
+
+#### Users
+- **GET** `/users` - Retrieve all users (with pagination)
+- **GET** `/users/id/{id}` - Get a user by ID
+- **GET** `/users/name/{name}` - Get users by name (with pagination)
+- **GET** `/users/email/{email}` - Get a user by email
+- **GET** `/users/role/{role}` - Get users by role (with pagination)
+- **PUT** `/users/{id}` - Update a user
+- **PUT** `/users/{id}/password` - Change user password
+- **DELETE** `/users/{id}` - Delete a user
 
 ### Authentication
 
