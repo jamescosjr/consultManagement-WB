@@ -62,7 +62,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-          envs: GHCR_PULL_USER,GHCR_PULL_TOKEN
+          
+          envs: ACTOR=${{ github.actor }}, TOKEN=${{ secrets.GITHUB_TOKEN }}
+          
           script: |
             set -e
             echo ">>> Validando diretório do projeto"
@@ -70,10 +72,12 @@ jobs:
             cd ~/consultManagement-WB
             
             echo ">>> Sincronizando repositório"
+            # O git clone usará a chave SSH que já autenticou (se configurado corretamente no Github/VPS)
             if [ -d .git ]; then git fetch origin && git reset --hard origin/main; else git clone https://github.com/${{ github.repository }} .; fi
 
             echo ">>> Login no GHCR"
-            echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "$GHCR_PULL_USER" --password-stdin
+            # 💡 CORREÇÃO APLICADA: Usa as novas variáveis injetadas
+            echo "$TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
 
             echo ">>> Pull da imagem mais recente"
             docker pull ghcr.io/${{ github.repository_owner }}/consult-api:latest
@@ -83,14 +87,3 @@ jobs:
               printf "MONGODB_URI=COLOQUE_SUA_URI\nJWT_SECRET=COLOQUE_SEU_SECRET\nSERVICE_NAME=consultManagement-WB\nLOG_LEVEL=info\nOTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318\nPORT=3000\n" > .env.production
               echo "Arquivo .env.production criado (preencha valores reais)."
             fi
-
-            echo ">>> Subindo stack com docker compose"
-            cd ops
-            docker compose down || true
-            docker compose pull || true
-            docker compose up -d --remove-orphans
-
-            echo ">>> Limpeza de imagens obsoletas"
-            docker image prune -f || true
-
-            echo ">>> Deploy finalizado com sucesso!"
