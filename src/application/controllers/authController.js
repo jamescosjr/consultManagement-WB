@@ -1,3 +1,4 @@
+import logger from '../../infrastructure/observability/logger.js';
 import { ValidationError } from "../../domain/error/customErros.js";
 import { registerService } from "../../domain/services/authService.js";
 import { validateRegisterData } from "../../domain/validation/auth.js";
@@ -15,8 +16,7 @@ export async function registerController(req, res, next) {
         res.status(201).json({ user, token });
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('RegisterController error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'RegisterController error');
         }
         next(error);
     }

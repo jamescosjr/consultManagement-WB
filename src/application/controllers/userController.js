@@ -1,3 +1,4 @@
+import logger from '../../infrastructure/observability/logger.js';
 import { ValidationError } from "../../domain/error/customErros.js";
 import {
     getAllUsersService,
@@ -24,8 +25,7 @@ export async function listUsersHandler(req, res, next) {
         res.status(200).json(users);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('ListUsersHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'ListUsersHandler error');
         }
         next(error);
     }
@@ -38,8 +38,7 @@ export async function getUserByIdHandler(req, res, next) {
         res.status(200).json(user);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('GetUserByIdHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'GetUserByIdHandler error');
         }
         next(error);
     }
@@ -55,8 +54,7 @@ export async function findUserByNameHandler(req, res, next) {
         res.status(200).json(users);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('FindUserByNameHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'FindUserByNameHandler error');
         }
         next(error);
     }
@@ -69,8 +67,7 @@ export async function findUserByEmailHandler(req, res, next) {
         res.status(200).json(user);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('FindUserByEmailHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'FindUserByEmailHandler error');
         }
         next(error);
     }
@@ -91,8 +88,7 @@ export async function listUsersByRoleHandler(req, res, next) {
         res.status(200).json(users);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('ListUsersByRoleHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'ListUsersByRoleHandler error');
         }
         next(error);
     }
@@ -112,8 +108,7 @@ export async function updateUserHandler(req, res, next) {
         res.status(200).json(user);
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('UpdateUserHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'UpdateUserHandler error');
         }
         next(error);
     }
@@ -126,8 +121,7 @@ export async function deleteUserHandler(req, res, next) {
         res.status(200).json({ message: 'User deleted successfully', user });
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('DeleteUserHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'DeleteUserHandler error');
         }
         next(error);
     }
@@ -149,8 +143,7 @@ export async function changePasswordHandler(req, res, next) {
         res.status(200).json({ message: 'Password changed successfully', user: updatedUser });
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('ChangePasswordHandler error:', { status: error.status, message: error.message, name: error.name, stack: error.stack });
+            logger.error({ status: error.status, message: error.message, name: error.name, stack: error.stack }, 'ChangePasswordHandler error');
         }
         next(error);
     }

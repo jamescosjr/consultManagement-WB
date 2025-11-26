@@ -1,3 +1,4 @@
+import logger from '../../observability/logger.js';
 import { AppError } from "../../../domain/error/customErros.js";
 import { User } from "../../schemas/user.schema.js";
 
@@ -21,8 +22,7 @@ export async function createUser({ name, email, passwordHash, role }, session = 
         return newUser.save({ session });
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('createUser error:', error);
+            logger.error({ err: error }, 'createUser error');
         }
         if (error instanceof AppError) {
             throw error;
@@ -72,8 +72,7 @@ export async function updateUserById(id, updateData, session = null) {
         return updatedUser;
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('updateUserById error:', error);
+            logger.error({ err: error }, 'updateUserById error');
         }
         if (error instanceof AppError) {
             throw error;
@@ -98,8 +97,7 @@ export async function deleteUserById(id, session = null) {
         return deletedUser;
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('deleteUserById error:', error);
+            logger.error({ err: error }, 'deleteUserById error');
         }
         if (error instanceof AppError) {
             throw error;
@@ -128,8 +126,7 @@ export async function updateUserPassword(id, newPasswordHash, session = null) {
         return updatedUser;
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
-            // eslint-disable-next-line no-console
-            console.error('updateUserPassword error:', error);
+            logger.error({ err: error }, 'updateUserPassword error');
         }
         if (error instanceof AppError) {
             throw error;
