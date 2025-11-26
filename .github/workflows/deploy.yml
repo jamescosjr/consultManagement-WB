@@ -1,0 +1,96 @@
+name: CI/CD - Test, Build, Deploy API
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests (Unit & Integration)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install
+        run: npm ci
+      - name: Run tests
+        run: npm test
+
+  build_push:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/consult-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to VPS
+    needs: build_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          envs: GHCR_PULL_USER,GHCR_PULL_TOKEN
+          script: |
+            set -e
+            echo ">>> Validando diretório do projeto"
+            if [ ! -d "~/consultManagement-WB" ]; then mkdir -p ~/consultManagement-WB; fi
+            cd ~/consultManagement-WB
+            
+            echo ">>> Sincronizando repositório"
+            if [ -d .git ]; then git fetch origin && git reset --hard origin/main; else git clone https://github.com/${{ github.repository }} .; fi
+
+            echo ">>> Login no GHCR"
+            echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "$GHCR_PULL_USER" --password-stdin
+
+            echo ">>> Pull da imagem mais recente"
+            docker pull ghcr.io/${{ github.repository_owner }}/consult-api:latest
+
+            echo ">>> Criando arquivo de ambiente (.env.production) se não existir"
+            if [ ! -f .env.production ]; then
+              printf "MONGODB_URI=COLOQUE_SUA_URI\nJWT_SECRET=COLOQUE_SEU_SECRET\nSERVICE_NAME=consultManagement-WB\nLOG_LEVEL=info\nOTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318\nPORT=3000\n" > .env.production
+              echo "Arquivo .env.production criado (preencha valores reais)."
+            fi
+
+            echo ">>> Subindo stack com docker compose"
+            cd ops
+            docker compose down || true
+            docker compose pull || true
+            docker compose up -d --remove-orphans
+
+            echo ">>> Limpeza de imagens obsoletas"
+            docker image prune -f || true
+
+            echo ">>> Deploy finalizado com sucesso!"

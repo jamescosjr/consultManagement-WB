@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  api:
+    image: ghcr.io/jamescosjr/consult-api:latest
+    container_name: consult-api
+    env_file:
+      - ../.env.production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
     container_name: observability-prometheus
@@ -30,8 +41,7 @@ services:
     container_name: observability-tempo
     ports:
       - "3200:3200"   # HTTP API / Tempo UI
-      - "14317:4317"  # OTLP gRPC (mapeado para evitar conflito com otel-collector)
-      - "14318:4318"  # OTLP HTTP (mapeado para evitar conflito com otel-collector)
+    # Collector exporta para tempo internamente; não expomos 4317/4318
     volumes:
       - ./tempo/config.yaml:/etc/tempo.yaml:ro
     command: ["-config.file=/etc/tempo.yaml"]
@@ -62,9 +72,15 @@ services:
     container_name: observability-otel-collector
     command: ["--config=/etc/otelcol/config.yaml"]
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4318:4318" # Expondo apenas OTLP HTTP
     volumes:
       - ./otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
     depends_on:
       - tempo
+
+volumes:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+
