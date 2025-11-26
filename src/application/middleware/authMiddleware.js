@@ -1,13 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../domain/error/customErros.js';
 import { User } from '../../infrastructure/schemas/user.schema.js';
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { JWT_SECRET } from '../../config/env.js';
 
 export async function ensureAuthenticated(req, res, next) {
-    if (process.env.NODE_ENV === 'test') {
-        return next();
-    }
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return next(new AppError('Token não fornecido', 401));
@@ -34,10 +30,6 @@ export async function ensureAuthenticated(req, res, next) {
 
 export const ensureRoles = (requiredRoles) => {
     return (req, res, next) => {
-        if (process.env.NODE_ENV === 'test') {
-            return next();
-        }
-
         const { role } = req.user || {};
         
         if (role === 'root') {

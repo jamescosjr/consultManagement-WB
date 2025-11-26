@@ -1,4 +1,8 @@
 import dotenv from "dotenv";
+
+// Configure environment variables BEFORE other imports
+dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import routes from "./src/application/router/routes.js";
@@ -8,8 +12,6 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 
 const schema = yaml.load(fs.readFileSync('./src/application/contracts/contract.yaml', 'utf8'));
-
-dotenv.config();
 
 
 export const app = express();

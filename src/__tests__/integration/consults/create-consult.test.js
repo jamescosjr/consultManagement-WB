@@ -3,6 +3,8 @@ import { app } from "../../../../server";
 const dbHandler = require('../../../../jest/jest.setup');
 import { Doctor } from "../../../infrastructure/schemas/doctor.schema";
 import { Patient } from "../../../infrastructure/schemas/patient.schema";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 import { getDoctorById } from "../../../infrastructure/repositories/doctor-repositories/doctor.repository.read";
 import mongoose from "mongoose";
 import { getPatientById } from "../../../infrastructure/repositories/patient-repositories/patient.repository.read";
@@ -20,6 +22,19 @@ afterAll(async () => {
 });
 
 describe('POST /consults', () => {
+    let rootToken;
+
+    beforeEach(async () => {
+        const rootUser = new User({
+            name: "Root User",
+            email: "root@test.com",
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: "root"
+        });
+        const savedUser = await rootUser.save();
+        rootToken = generateToken(savedUser._id, savedUser.role);
+    });
+
     describe("success cases", () => {
         it("should create a new consult", async () => {
             const doctor = new Doctor({
@@ -42,7 +57,7 @@ describe('POST /consults', () => {
                 description: "description 1",
          };
 
-         const response = await supertest(app).post("/consults").send(consult);
+         const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult);
 
          const newDoctor = await getDoctorById(dataBaseDoctor._id); 
          const newPatient = await getPatientById(dataBasePatient._id);
@@ -101,7 +116,7 @@ describe('POST /consults', () => {
                 shift: 'MORNING'
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(404);
             expect(response.body).toHaveProperty("message", "Patient not found");
@@ -123,7 +138,7 @@ describe('POST /consults', () => {
                 shift: 'MORNING'
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(404);
             expect(response.body).toHaveProperty("message", "Doctor not found");
@@ -150,7 +165,7 @@ describe('POST /consults', () => {
                 description: "description 1",
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message", "The date should be a valid string");
@@ -170,7 +185,7 @@ describe('POST /consults', () => {
                 description: "description 1",
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message", "The patientId should be a valid string");
@@ -190,7 +205,7 @@ describe('POST /consults', () => {
                 description: "description 1",
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message", "The doctorId should be a valid string");
@@ -217,7 +232,7 @@ describe('POST /consults', () => {
                 doctorId: dataBaseDoctor._id,
             };
 
-            const response = await supertest(app).post("/consults").send(consult)
+            const response = await supertest(app).post("/consults").set('Authorization', `Bearer ${rootToken}`).send(consult)
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message", "The description should be a valid string");

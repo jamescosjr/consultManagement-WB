@@ -1,5 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -15,6 +17,18 @@ afterAll(async () => {
 });
 
 describe('POST /doctors', () => {
+    let rootToken;
+
+    beforeEach(async () => {
+        const rootUser = new User({
+            name: 'Root User',
+            email: 'root@test.com',
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: 'root'
+        });
+        const savedUser = await rootUser.save();
+        rootToken = generateToken(savedUser._id, savedUser.role);
+    });
     describe("success cases", () => {
         it("should create a new doctor", async () => {
             const doctor = {
@@ -22,7 +36,7 @@ describe('POST /doctors', () => {
                 specialty: "specialty 1",
             };
 
-            const response = await supertest(app).post("/doctors").send(doctor);
+            const response = await supertest(app).post("/doctors").set('Authorization', `Bearer ${rootToken}`).send(doctor);
 
             expect(response.status).toBe(201);
             expect(response.body).toEqual(expect.objectContaining({
@@ -41,7 +55,7 @@ describe('POST /doctors', () => {
                 specialty:"specialty 1",
             }
 
-            const response = await supertest(app).post("/doctors").send(doctor);
+            const response = await supertest(app).post("/doctors").set('Authorization', `Bearer ${rootToken}`).send(doctor);
 
             expect(response.status).toBe(400)
             expect(response.body.message). toBe("The name should be a valid string")
@@ -53,7 +67,7 @@ describe('POST /doctors', () => {
                 specialty: 30,
             }
 
-            const response = await supertest(app).post("/doctors").send(doctor);
+            const response = await supertest(app).post("/doctors").set('Authorization', `Bearer ${rootToken}`).send(doctor);
 
             expect(response.status).toBe(400)
             expect(response.body.message). toBe("The specialty should be a valid string")

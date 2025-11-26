@@ -1,5 +1,7 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { generateToken, MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
 const dbHandler = require('../../../../jest/jest.setup');
 
 beforeAll(async () => {
@@ -15,6 +17,18 @@ afterAll(async () => {
 });
 
 describe('POST /patients', () => {
+    let rootToken;
+
+    beforeEach(async () => {
+        const rootUser = await User.create({
+            name: "Root User",
+            email: "root@test.com",
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: "root"
+        });
+        rootToken = generateToken(rootUser._id, rootUser.role);
+    });
+
     describe("success cases", () => {
         it("should create a new patient", async () => {
             const patient = {
@@ -22,7 +36,10 @@ describe('POST /patients', () => {
                 age: 30,
             };
 
-            const response = await supertest(app).post("/patients").send(patient);
+            const response = await supertest(app)
+                .post("/patients")
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(patient);
 
             expect(response.status).toBe(201);
             expect(response.body).toEqual(expect.objectContaining({
@@ -42,7 +59,10 @@ describe('POST /patients', () => {
                 age: 30,
             }
 
-            const response = await supertest(app).post("/patients").send(patient);
+            const response = await supertest(app)
+                .post("/patients")
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(patient);
 
             expect(response.status).toBe(400)
             expect(response.body.message). toBe("The name should be a valid string")
@@ -54,7 +74,10 @@ describe('POST /patients', () => {
                 age: "30",
             }
 
-            const response = await supertest(app).post("/patients").send(patient);
+            const response = await supertest(app)
+                .post("/patients")
+                .set('Authorization', `Bearer ${rootToken}`)
+                .send(patient);
 
             expect(response.status).toBe(400)
             expect(response.body.message). toBe("The age should be a valid number")

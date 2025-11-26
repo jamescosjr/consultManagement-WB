@@ -33,3 +33,107 @@ export async function createUser({ name, email, passwordHash, role }, session = 
         throw new AppError(error.message || 'Database error', 500);
     }
 }
+
+export async function updateUserById(id, updateData, session = null) {
+    try {
+        const allowedUpdates = ['name', 'email', 'role'];
+        const updates = {};
+        
+        for (const key of allowedUpdates) {
+            if (updateData[key] !== undefined) {
+                updates[key] = updateData[key];
+            }
+        }
+
+        if (updates.email) {
+            updates.email = updates.email.toLowerCase().trim();
+            
+            let query = User.findOne({ email: updates.email, _id: { $ne: id } });
+            if (session) {
+                query = query.session(session);
+            }
+            const existingUser = await query.exec();
+            if (existingUser) {
+                throw new AppError('Email already in use', 409);
+            }
+        }
+
+        let updateQuery = User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+        if (session) {
+            updateQuery = updateQuery.session(session);
+        }
+        
+        const updatedUser = await updateQuery.select('-passwordHash').exec();
+        
+        if (!updatedUser) {
+            throw new AppError('User not found', 404);
+        }
+
+        return updatedUser;
+    } catch (error) {
+        if (process.env.NODE_ENV === 'test') {
+            // eslint-disable-next-line no-console
+            console.error('updateUserById error:', error);
+        }
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new AppError(error.message || 'Database error', 500);
+    }
+}
+
+export async function deleteUserById(id, session = null) {
+    try {
+        let query = User.findByIdAndDelete(id);
+        if (session) {
+            query = query.session(session);
+        }
+        
+        const deletedUser = await query.select('-passwordHash').exec();
+        
+        if (!deletedUser) {
+            throw new AppError('User not found', 404);
+        }
+
+        return deletedUser;
+    } catch (error) {
+        if (process.env.NODE_ENV === 'test') {
+            // eslint-disable-next-line no-console
+            console.error('deleteUserById error:', error);
+        }
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new AppError(error.message || 'Database error', 500);
+    }
+}
+
+export async function updateUserPassword(id, newPasswordHash, session = null) {
+    try {
+        let query = User.findByIdAndUpdate(
+            id,
+            { passwordHash: newPasswordHash },
+            { new: true, runValidators: true }
+        );
+        if (session) {
+            query = query.session(session);
+        }
+        
+        const updatedUser = await query.select('-passwordHash').exec();
+        
+        if (!updatedUser) {
+            throw new AppError('User not found', 404);
+        }
+
+        return updatedUser;
+    } catch (error) {
+        if (process.env.NODE_ENV === 'test') {
+            // eslint-disable-next-line no-console
+            console.error('updateUserPassword error:', error);
+        }
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new AppError(error.message || 'Database error', 500);
+    }
+}
