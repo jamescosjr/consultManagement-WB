@@ -24,6 +24,18 @@ export const userSchema = new mongoose.Schema({
         enum: ['root', 'client', 'doctor', 'employee'],
         default: 'client',
         required: true
+    },
+    roleDetails: {
+        refModel: {
+            type: String,
+            enum: ['Doctor', 'Patient'],
+            required: false
+        },
+        refId: {
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: 'roleDetails.refModel',
+            required: false
+        }
     }
     
 }, { timestamps: true });
