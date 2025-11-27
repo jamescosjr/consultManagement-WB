@@ -46,12 +46,15 @@ For detailed information about the project, please refer to:
    ```sh
    npm install
    ```
-4. Set up the environment variables in a `.env` file:
+4. Set up the environment variables in a `.env` file (updated default port = 4000):
    ```env
-   PORT=3000
+   PORT=4000
    MONGODB_URI=mongodb://localhost:27017/consultManagement
    JWT_SECRET=your_secret_key_here
    NODE_ENV=development
+   SERVICE_NAME=consultManagement-WB
+   # Host port mapped to OTLP HTTP (4318 in container -> 4320 on host)
+   OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4320
    ```
 5. Start MongoDB:
    ```sh
@@ -162,6 +165,28 @@ npm test -- --watch
 ```
 
 The project uses Jest for testing with MongoDB Memory Server for integration tests.
+
+## 🔌 Ports & Observability
+
+The `docker-compose` (in `ops/docker-compose.yml`) maps the following service ports:
+
+| Service            | Host Port | Container Port | Notes |
+|--------------------|-----------|----------------|-------|
+| API (Express)      | 4000      | 4000           | REST endpoints, `/health`, `/metrics` |
+| Prometheus         | 9090      | 9090           | Metrics UI |
+| Grafana            | 3005      | 3000           | Dashboards (custom host port) |
+| Tempo (Traces)     | 3200      | 3200           | Trace query/UI |
+| Loki (Logs)        | 3101      | 3101           | Log queries |
+| OTEL Collector     | 4320      | 4318           | OTLP HTTP ingest |
+
+### API Endpoints (Local)
+
+- Health check: `curl http://127.0.0.1:4000/health`
+- Metrics (Prometheus format): `curl http://127.0.0.1:4000/metrics | head`
+
+### Updating Existing Docs
+
+If you previously used port `3000`, update any scripts, reverse proxies, or monitoring configs to target `4000` instead. The sample `.env` and this README now reflect the new default.
 
 ## 🤝 Contributing
 
