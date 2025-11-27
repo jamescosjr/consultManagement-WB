@@ -7,7 +7,7 @@ services:
     env_file:
       - ../.env.production
     ports:
-      - "3000:3000"
+      - "4000:4000"
     depends_on:
       - otel-collector
     restart: unless-stopped
