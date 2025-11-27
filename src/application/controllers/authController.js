@@ -4,15 +4,15 @@ import { registerService, loginService } from "../../domain/services/authService
 import { validateRegisterData, validateLoginData } from "../../domain/validation/auth.js";
 
 export async function registerController(req, res, next) {
-    const { name, email, password } = req.body;
+    const { name, email, password, role, roleDetails } = req.body;
 
-    const validation = validateRegisterData(name, email, password);
+    const validation = validateRegisterData(name, email, password, role, roleDetails);
         if (!validation.valid) {
             return next(new ValidationError(validation.message))
         }
 
     try {
-        const { user, token } = await registerService(req.body);
+        const { user, token } = await registerService({ name, email, password, role, roleDetails });
         res.status(201).json({ user, token });
     } catch (error) {
         if (process.env.NODE_ENV === 'test') {
