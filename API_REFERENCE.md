@@ -16,13 +16,34 @@ http://localhost:4000
 POST /auth/register
 ```
 
-**Body**:
+**Descrição**: Registra um novo usuário no sistema. O campo `roleDetails` é obrigatório e varia conforme a role escolhida:
+- **client**: requer `{ age: number }` (cria Patient vinculado)
+- **doctor**: requer `{ specialty: string }` (cria Doctor vinculado)
+- **employee/root**: não requer roleDetails
+
+**Body (Cliente)**:
 ```json
 {
     "name": "João Silva",
     "email": "joao@example.com",
-    "password": "senha123",
-    "role": "client"
+    "password": "Secure Pass123!",
+    "role": "client",
+    "roleDetails": {
+        "age": 35
+    }
+}
+```
+
+**Body (Médico)**:
+```json
+{
+    "name": "Dr. Maria Santos",
+    "email": "maria@hospital.com",
+    "password": "Secure Pass123!",
+    "role": "doctor",
+    "roleDetails": {
+        "specialty": "Cardiology"
+    }
 }
 ```
 
@@ -33,36 +54,88 @@ POST /auth/register
         "_id": "507f1f77bcf86cd799439011",
         "name": "João Silva",
         "email": "joao@example.com",
-        "role": "client"
+        "role": "client",
+        "roleDetails": {
+            "refModel": "Patient",
+            "refId": "507f1f77bcf86cd799439012"
+        },
+        "createdAt": "2025-11-27T12:00:00.000Z",
+        "updatedAt": "2025-11-27T12:00:00.000Z"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
+
+**Erros**:
+- `400`: Validação falhou (password fraco, roleDetails ausente/inválido, etc)
+- `409`: Email já cadastrado
+
+---
 
 ### Login
 ```http
 POST /auth/login
 ```
 
+**Descrição**: Autentica usuário e retorna token JWT. O response inclui `roleDetails` populado com dados do Doctor ou Patient vinculado.
+
 **Body**:
 ```json
 {
     "email": "joao@example.com",
-    "password": "senha123"
+    "password": "Secure Pass123!"
 }
 ```
 
-**Response** (200):
+**Response Client** (200):
 ```json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
         "_id": "507f1f77bcf86cd799439011",
         "name": "João Silva",
-        "role": "client"
+        "email": "joao@example.com",
+        "role": "client",
+        "roleDetails": {
+            "refModel": "Patient",
+            "refId": {
+                "_id": "507f1f77bcf86cd799439012",
+                "name": "João Silva",
+                "age": 35
+            }
+        },
+        "createdAt": "2025-11-27T12:00:00.000Z",
+        "updatedAt": "2025-11-27T12:00:00.000Z"
     }
 }
 ```
+
+**Response Doctor** (200):
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+        "_id": "507f1f77bcf86cd799439013",
+        "name": "Dr. Maria Santos",
+        "email": "maria@hospital.com",
+        "role": "doctor",
+        "roleDetails": {
+            "refModel": "Doctor",
+            "refId": {
+                "_id": "507f1f77bcf86cd799439014",
+                "name": "Dr. Maria Santos",
+                "specialty": "Cardiology"
+            }
+        },
+        "createdAt": "2025-11-27T12:00:00.000Z",
+        "updatedAt": "2025-11-27T12:00:00.000Z"
+    }
+}
+```
+
+**Erros**:
+- `400`: Email/password inválidos (formato)
+- `401`: Credenciais incorretas
 
 ---
 
