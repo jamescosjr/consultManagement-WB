@@ -1,32 +1,71 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { createUser } from '../../infrastructure/repositories/user-repositories/user.repository.write.js';
+import { createDoctor } from '../../infrastructure/repositories/doctor-repositories/doctor.repository.write.js';
+import { createPatient } from '../../infrastructure/repositories/patient-repositories/patient.repository.write.js';
 import { User } from '../../infrastructure/schemas/user.schema.js';
 import { AppError } from '../error/customErros.js';
 import { JWT_SECRET } from '../../config/env.js';
 
-export async function registerService({ name, email, password, role }) {
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(password, salt);
+export async function registerService({ name, email, password, role = 'client', roleDetails = null }) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const user = await createUser({
-        name,
-        email,
-        passwordHash,
-        role
-    });
+    try {
+        const salt = await bcrypt.genSalt(12);
+        const passwordHash = await bcrypt.hash(password, salt);
 
-    const payload = {
-    id: user._id,
-    role: user.role
-    };
+        let roleData = null;
 
-    const token = jwt.sign(payload, JWT_SECRET, {
-        expiresIn: '8h'
-    });
-    
-    user.passwordHash = undefined;
-    return { user, token };
+        // Create role-specific entity if needed
+        if (role === 'doctor' && roleDetails) {
+            const doctor = await createDoctor({ 
+                name, 
+                specialty: roleDetails.specialty 
+            });
+            roleData = {
+                refModel: 'Doctor',
+                refId: doctor._id
+            };
+        } else if (role === 'client' && roleDetails) {
+            const patient = await createPatient({ 
+                name, 
+                age: roleDetails.age 
+            });
+            roleData = {
+                refModel: 'Patient',
+                refId: patient._id
+            };
+        }
+
+        const user = await createUser({
+            name,
+            email,
+            passwordHash,
+            role,
+            roleDetails: roleData
+        });
+
+        await session.commitTransaction();
+
+        const payload = {
+            id: user._id,
+            role: user.role
+        };
+
+        const token = jwt.sign(payload, JWT_SECRET, {
+            expiresIn: '8h'
+        });
+        
+        user.passwordHash = undefined;
+        return { user, token };
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
 }
 
 export async function loginService({ email, password }) {
