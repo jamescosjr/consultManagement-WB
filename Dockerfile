@@ -15,8 +15,8 @@ COPY . .
 # Usuário não-root para reduzir riscos
 RUN addgroup -S nodegrp && adduser -S nodeusr -G nodegrp
 USER nodeusr
-EXPOSE 3000
+EXPOSE 4000
 # Healthcheck baseado no endpoint /health
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health | grep '"status":"ok"' || exit 1
+  CMD wget -qO- http://localhost:4000/health | grep '"status":"ok"' || exit 1
 CMD ["node", "server.js"]
