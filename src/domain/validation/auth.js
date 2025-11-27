@@ -56,3 +56,17 @@ export function validateRegisterData(name, email, password) {
     
     return { valid: true, message: 'Registration data is valid.' };
 }
+
+export function validateLoginData(email, password) {
+    if (typeof email !== 'string' || email.trim() === '') {
+        return { valid: false, message: 'The email should be a valid string' };
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        return { valid: false, message: 'The email address format is invalid' };
+    }
+    if (typeof password !== 'string' || password.trim() === '') {
+        return { valid: false, message: 'The password should be a valid string' };
+    }
+    return { valid: true, message: 'Login data is valid.' };
+}
