@@ -1,6 +1,8 @@
 import supertest from 'supertest';
 import { app } from '../../../../server';
 import { User } from '../../../infrastructure/schemas/user.schema';
+import { Doctor } from '../../../infrastructure/schemas/doctor.schema';
+import { Patient } from '../../../infrastructure/schemas/patient.schema';
 import { MOCK_PASSWORD_HASH } from '../../../test-helpers/test-utils';
 const dbHandler = require('../../../../jest/jest.setup');
 
@@ -39,6 +41,58 @@ describe('POST /auth/login', () => {
     expect(res.body.user).toBeDefined();
     expect(res.body.user.email).toBe(email);
     expect(res.body.user.passwordHash).toBeUndefined();
+  });
+
+  it('should login client and populate patient roleDetails', async () => {
+    const patient = await Patient.create({ name: 'Patient User', age: 30 });
+    const clientEmail = 'client@test.com';
+    
+    await User.create({
+      name: 'Patient User',
+      email: clientEmail,
+      passwordHash: MOCK_PASSWORD_HASH,
+      role: 'client',
+      roleDetails: {
+        refModel: 'Patient',
+        refId: patient._id
+      }
+    });
+
+    const res = await supertest(app)
+      .post('/auth/login')
+      .send({ email: clientEmail, password });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.roleDetails).toBeDefined();
+    expect(res.body.user.roleDetails.refModel).toBe('Patient');
+    expect(res.body.user.roleDetails.refId).toBeDefined();
+    expect(res.body.user.roleDetails.refId.age).toBe(30);
+  });
+
+  it('should login doctor and populate doctor roleDetails', async () => {
+    const doctor = await Doctor.create({ name: 'Dr. Smith', specialty: 'Cardiology' });
+    const doctorEmail = 'doctor@test.com';
+    
+    await User.create({
+      name: 'Dr. Smith',
+      email: doctorEmail,
+      passwordHash: MOCK_PASSWORD_HASH,
+      role: 'doctor',
+      roleDetails: {
+        refModel: 'Doctor',
+        refId: doctor._id
+      }
+    });
+
+    const res = await supertest(app)
+      .post('/auth/login')
+      .send({ email: doctorEmail, password });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.roleDetails).toBeDefined();
+    expect(res.body.user.roleDetails.refModel).toBe('Doctor');
+    expect(res.body.user.roleDetails.refId).toBeDefined();
+    expect(res.body.user.roleDetails.refId.specialty).toBe('Cardiology');
   });
 
   it('should return 401 for invalid password', async () => {
