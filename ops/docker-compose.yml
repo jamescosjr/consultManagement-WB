@@ -50,7 +50,7 @@ services:
     image: grafana/loki:2.9.8
     container_name: observability-loki
     ports:
-      - "3100:3100"
+      - "3101:3101"
     volumes:
       - ./loki/config.yaml:/etc/loki/local-config.yaml:ro
     command: ["-config.file=/etc/loki/local-config.yaml"]
