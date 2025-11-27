@@ -2,7 +2,7 @@ import logger from '../../observability/logger.js';
 import { AppError } from "../../../domain/error/customErros.js";
 import { User } from "../../schemas/user.schema.js";
 
-export async function createUser({ name, email, passwordHash, role }, session = null) {
+export async function createUser({ name, email, passwordHash, role, roleDetails }, session = null) {
     try {
         // Pre-check to ensure deterministic duplicate handling without relying on indexes
         let query = User.findOne({ email });
@@ -17,7 +17,8 @@ export async function createUser({ name, email, passwordHash, role }, session = 
             name,
             email,
             passwordHash,
-            role: role || 'client'
+            role: role || 'client',
+            roleDetails
         });
         return newUser.save({ session });
     } catch (error) {
