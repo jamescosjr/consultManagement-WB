@@ -70,7 +70,12 @@ export async function registerService({ name, email, password, role = 'client', 
 
 export async function loginService({ email, password }) {
     const normalizedEmail = (email || '').toLowerCase().trim();
-    const userWithPassword = await User.findOne({ email: normalizedEmail }).select('+passwordHash');
+    const userWithPassword = await User.findOne({ email: normalizedEmail })
+        .select('+passwordHash')
+        .populate({
+            path: 'roleDetails.refId',
+            select: '-consultIds -__v'
+        });
 
     if (!userWithPassword) {
         throw new AppError('Invalid credentials', 401);
