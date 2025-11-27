@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ensureAuthenticated, ensureRoles } from '../middleware/authMiddleware.js';
-import { registerController } from '../controllers/authController.js';
+import { registerController, loginController } from '../controllers/authController.js';
 import {
     createPatientHandler,
     updatePatientHandler,
@@ -44,6 +44,7 @@ const router = Router();
 
 // Auth
 router.post('/auth/register', registerController);
+router.post('/auth/login', loginController);
 
 router.post('/consults', ensureAuthenticated, createConsultController);
 router.get('/consults/id/:id', getConsultByIdController);
