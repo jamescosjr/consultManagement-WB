@@ -59,18 +59,47 @@ paths:
                 - name
                 - email
                 - password
+                - role
+                - roleDetails
               properties:
                 name:
                   type: string
+                  example: "Dr. João Silva"
                 email:
                   type: string
                   format: email
+                  example: "joao@hospital.com"
                 password:
                   type: string
                   format: password
+                  example: "Secure Pass123!"
                 role:
                   type: string
                   enum: [root, client, doctor, employee]
+                  example: "doctor"
+                roleDetails:
+                  oneOf:
+                    - $ref: '#/components/schemas/DoctorDetailsInput'
+                    - $ref: '#/components/schemas/PatientDetailsInput'
+            examples:
+              registerDoctor:
+                summary: Register as doctor
+                value:
+                  name: "Dr. Maria Santos"
+                  email: "maria@hospital.com"
+                  password: "Secure Pass123!"
+                  role: "doctor"
+                  roleDetails:
+                    specialty: "Cardiology"
+              registerClient:
+                summary: Register as client
+                value:
+                  name: "João Silva"
+                  email: "joao@example.com"
+                  password: "Secure Pass123!"
+                  role: "client"
+                  roleDetails:
+                    age: 35
       responses:
         '201':
           description: User registered successfully
@@ -926,6 +955,16 @@ components:
         role:
           type: string
           enum: [root, client, doctor, employee]
+        roleDetails:
+          type: object
+          properties:
+            refModel:
+              type: string
+              enum: [Doctor, Patient]
+            refId:
+              oneOf:
+                - $ref: '#/components/schemas/Doctor'
+                - $ref: '#/components/schemas/Patient'
         createdAt:
           type: string
           format: date-time
@@ -994,6 +1033,26 @@ components:
           type: string
         specialty:
           type: string
+    
+    DoctorDetailsInput:
+      type: object
+      required:
+        - specialty
+      properties:
+        specialty:
+          type: string
+          example: "Cardiology"
+    
+    PatientDetailsInput:
+      type: object
+      required:
+        - age
+      properties:
+        age:
+          type: integer
+          minimum: 1
+          maximum: 150
+          example: 35
     
     Consult:
       type: object
