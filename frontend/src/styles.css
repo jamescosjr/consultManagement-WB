@@ -1,6 +1,94 @@
-body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #f5f7fb }
-.page { max-width: 800px; margin: 24px auto }
-.card { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: white; border-radius: 6px }
-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px }
-button { padding: 8px 12px; border: none; background: #0b5fff; color: white; border-radius: 4px }
-.error { color: red; margin-top: 8px }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		@apply antialiased;
+	}
+
+	body {
+		@apply bg-slate-50 text-slate-900 font-sans;
+	}
+}
+
+@layer components {
+	.page-shell {
+		@apply min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100;
+	}
+
+	.page-inner {
+		@apply mx-auto w-full max-w-6xl px-6 py-10;
+	}
+
+	.section-title {
+		@apply text-2xl font-semibold text-slate-900;
+	}
+
+	.section-subtitle {
+		@apply text-sm text-slate-500;
+	}
+
+	.card {
+		@apply rounded-xl border border-slate-200 bg-white shadow-sm;
+	}
+
+	.card-header {
+		@apply flex items-center justify-between border-b border-slate-100 px-6 py-4;
+	}
+
+	.card-body {
+		@apply px-6 py-5;
+	}
+
+	.btn-primary {
+		@apply inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700;
+	}
+
+	.btn-secondary {
+		@apply inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-900;
+	}
+
+	.btn-ghost {
+		@apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900;
+	}
+
+	.input-field {
+		@apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200;
+	}
+
+	.badge {
+		@apply inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600;
+	}
+
+	.badge-emerald {
+		@apply bg-emerald-100 text-emerald-700;
+	}
+
+	.badge-indigo {
+		@apply bg-indigo-100 text-indigo-700;
+	}
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@layer utilities {
+	.animate-slideIn {
+		animation: slideIn 0.3s ease-out forwards;
+	}
+}
