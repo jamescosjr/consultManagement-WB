@@ -18,7 +18,7 @@ import {
     getDoctorByIdHandler,
     findDoctorByNameHandler,
     listDoctorsBySpecialtyHandler,
-} from '../controllers/doctorController.js'
+} from '../controllers/doctorController.js';
 import {
     createConsultController,
     updateConsultByIdController,
@@ -28,7 +28,7 @@ import {
     getConsultByDoctorIdController,
     getConsultByPatientIdController,
     getConsultByIdController,
-} from '../controllers/consultController.js'
+} from '../controllers/consultController.js';
 import {
     listUsersHandler,
     getUserByIdHandler,
@@ -38,7 +38,12 @@ import {
     updateUserHandler,
     deleteUserHandler,
     changePasswordHandler,
-} from '../controllers/userController.js'
+} from '../controllers/userController.js';
+import {
+    createRequestController,
+    getRequestByIdController,
+    listRequestsController,
+} from '../controllers/requestController.js';
 
 const router = Router();
 
@@ -86,5 +91,10 @@ router.get('/users/role/:role', ensureAuthenticated, ensureRoles(['root', 'emplo
 router.put('/users/:id', ensureAuthenticated, updateUserHandler);
 router.put('/users/:id/password', ensureAuthenticated, changePasswordHandler);
 router.delete('/users/:id', ensureAuthenticated, ensureRoles(['root']), deleteUserHandler);
+
+// Requests
+router.post('/requests', ensureAuthenticated, ensureRoles(['root', 'employee']), createRequestController);
+router.get('/requests', ensureAuthenticated, ensureRoles(['root', 'employee']), listRequestsController);
+router.get('/requests/:id', ensureAuthenticated, ensureRoles(['root', 'employee']), getRequestByIdController);
 
 export default router;

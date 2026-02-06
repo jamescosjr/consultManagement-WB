@@ -513,4 +513,22 @@ npm run lint:fix
 
 ---
 
+## Testes
+
+- Toda nova funcionalidade ou alteração no código existente deve ser acompanhada de testes adequados (unitários e/ou de integração).
+- Certifique-se de que os testes cubram os casos de uso principais e cenários de erro.
+- Utilize a estrutura de testes existente no projeto para manter consistência.
+
+---
+
+## Git: Seleção de Arquivos
+
+- **Evite adicionar arquivos desnecessários**: Antes de cada commit, revise os arquivos adicionados com `git status` e `git diff`.
+- **Use o `.gitignore`**: Certifique-se de que arquivos temporários, de configuração local ou gerados automaticamente (como `node_modules`, arquivos de build, e credenciais) estejam listados no `.gitignore`.
+- **Commits pequenos e descritivos**: Faça commits que sejam pequenos e focados em uma única mudança ou funcionalidade. Use mensagens claras e descritivas.
+- **Não comite segredos**: Nunca adicione credenciais, chaves privadas ou informações sensíveis ao repositório. Utilize variáveis de ambiente ou ferramentas como o `dotenv`.
+- **Arquivos de log e cache**: Certifique-se de que arquivos como `*.log` e `*.cache` não sejam adicionados ao repositório.
+
+---
+
 **Última atualização**: 25 de novembro de 2025
