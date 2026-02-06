@@ -42,3 +42,44 @@ Rollback
 Health checks
 - Verifique `/health` periodicamente (status e uptime).
 - Exponha `/metrics` para Prometheus (coleta de métricas).
+
+# Instruções de Deploy
+
+## Backend
+1. Certifique-se de que todas as dependências estão instaladas:
+   ```bash
+   npm install
+   ```
+2. Configure as variáveis de ambiente no arquivo `.env`.
+3. Inicie o servidor:
+   ```bash
+   npm start
+   ```
+
+## Frontend
+1. Navegue até o diretório do frontend:
+   ```bash
+   cd frontend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm start
+   ```
+
+## Docker
+1. Construa as imagens Docker:
+   ```bash
+   docker-compose build
+   ```
+2. Inicie os serviços:
+   ```bash
+   docker-compose up
+   ```
+
+## Observações
+- Certifique-se de que as portas configuradas no `.env` estão disponíveis.
+- Verifique os logs para garantir que todos os serviços estão funcionando corretamente.
