@@ -54,6 +54,7 @@ if (process.env.NODE_ENV === 'test') {
 } else {
     router.post('/auth/register', ensureAuthenticated, ensureRoles(['root']), registerController);
 }
+// Removendo restrição de autenticação para login
 router.post('/auth/login', loginController);
 
 router.post('/consults', ensureAuthenticated, createConsultController);
