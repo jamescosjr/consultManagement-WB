@@ -46,9 +46,9 @@ For detailed information about the project, please refer to:
    ```sh
    npm install
    ```
-4. Set up the environment variables in a `.env` file (updated default port = 4000):
+4. Set up the environment variables in a `.env` file (updated default port = 6000):
    ```env
-   PORT=4000
+   PORT=6000
    MONGODB_URI=mongodb://localhost:27017/consultManagement
    JWT_SECRET=your_secret_key_here
    NODE_ENV=development
@@ -147,12 +147,18 @@ Protected routes require a JWT token in the Authorization header:
 Authorization: Bearer {token}
 ```
 
-### Roles
+### Roles & Segurança
 
-- `root`: Full access to all endpoints
+- `root`: Full access to all endpoints. **Apenas `root` deve poder criar, atualizar ou deletar outros usuários** — em produção a rota de registro pública deve ser desativada ou protegida.
 - `employee`: CRUD access to patients, doctors, and consultations
 - `doctor`: CRUD access to consultations, read access to patients
 - `client`: Read access to own profile and consultations
+
+Segurança recomendada:
+- Nunca exponha `JWT_SECRET` em repositórios. Use segredos gerenciados no ambiente de produção.
+- Sempre use HTTPS em produção e configure CORS/CSRF conforme necessário.
+- Senhas devem ser armazenadas apenas após hashing (o projeto usa `bcryptjs`).
+- Tokens JWT devem ser curtos e renováveis; armazene tokens no cliente com segurança.
 
 ## 🧪 Testing
 
@@ -172,7 +178,7 @@ The `docker-compose` (in `ops/docker-compose.yml`) maps the following service po
 
 | Service            | Host Port | Container Port | Notes |
 |--------------------|-----------|----------------|-------|
-| API (Express)      | 4000      | 4000           | REST endpoints, `/health`, `/metrics` |
+| API (Express)      | 6000      | 6000           | REST endpoints, `/health`, `/metrics` |
 | Prometheus         | 9090      | 9090           | Metrics UI |
 | Grafana            | 3005      | 3000           | Dashboards (custom host port) |
 | Tempo (Traces)     | 3200      | 3200           | Trace query/UI |
@@ -181,12 +187,12 @@ The `docker-compose` (in `ops/docker-compose.yml`) maps the following service po
 
 ### API Endpoints (Local)
 
-- Health check: `curl http://127.0.0.1:4000/health`
-- Metrics (Prometheus format): `curl http://127.0.0.1:4000/metrics | head`
+- Health check: `curl http://127.0.0.1:6000/health`
+- Metrics (Prometheus format): `curl http://127.0.0.1:6000/metrics | head`
 
 ### Updating Existing Docs
 
-If you previously used port `3000`, update any scripts, reverse proxies, or monitoring configs to target `4000` instead. The sample `.env` and this README now reflect the new default.
+If you previously used port `3000`, update any scripts, reverse proxies, or monitoring configs to target `6000` instead. The sample `.env` and this README now reflect the new default.
 
 ## 🤝 Contributing
 

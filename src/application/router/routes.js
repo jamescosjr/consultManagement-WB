@@ -43,7 +43,12 @@ import {
 const router = Router();
 
 // Auth
-router.post('/auth/register', registerController);
+if (process.env.NODE_ENV === 'test') {
+    // Em tests permitimos registro público para facilitar fixtures
+    router.post('/auth/register', registerController);
+} else {
+    router.post('/auth/register', ensureAuthenticated, ensureRoles(['root']), registerController);
+}
 router.post('/auth/login', loginController);
 
 router.post('/consults', ensureAuthenticated, createConsultController);
@@ -77,6 +82,7 @@ router.get('/users/id/:id', ensureAuthenticated, ensureRoles(['root', 'employee'
 router.get('/users/name/:name', ensureAuthenticated, ensureRoles(['root', 'employee']), findUserByNameHandler);
 router.get('/users/email/:email', ensureAuthenticated, ensureRoles(['root', 'employee']), findUserByEmailHandler);
 router.get('/users/role/:role', ensureAuthenticated, ensureRoles(['root', 'employee']), listUsersByRoleHandler);
+// Allow authenticated users to update their own profile; root can update any user
 router.put('/users/:id', ensureAuthenticated, updateUserHandler);
 router.put('/users/:id/password', ensureAuthenticated, changePasswordHandler);
 router.delete('/users/:id', ensureAuthenticated, ensureRoles(['root']), deleteUserHandler);

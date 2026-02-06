@@ -12,6 +12,7 @@ import {
     updateUserPassword
 } from '../../infrastructure/repositories/user-repositories/user.repository.write.js';
 import { AppError } from '../error/customErros.js';
+import { User } from '../../infrastructure/schemas/user.schema';
 
 export async function getAllUsersService(page = 1, limit = 10) {
     try {
@@ -107,23 +108,24 @@ export async function deleteUserService(id) {
     }
 }
 
-export async function changePasswordService(id, currentPassword, newPassword) {
+export async function changePasswordService(id, currentPassword, newPassword, isAdmin = false) {
     try {
         const user = await getUserById(id);
         if (!user) {
             throw new AppError('User not found', 404);
         }
 
-        const userWithPassword = await import('../../infrastructure/schemas/user.schema.js')
-            .then(module => module.User.findById(id).select('+passwordHash'));
+        const userWithPassword = await User.findById(id).select('+passwordHash');
 
         if (!userWithPassword) {
             throw new AppError('User not found', 404);
         }
 
-        const isPasswordValid = await bcrypt.compare(currentPassword, userWithPassword.passwordHash);
-        if (!isPasswordValid) {
-            throw new AppError('Current password is incorrect', 401);
+        if (!isAdmin) {
+            const isPasswordValid = await bcrypt.compare(currentPassword, userWithPassword.passwordHash);
+            if (!isPasswordValid) {
+                throw new AppError('Current password is incorrect', 401);
+            }
         }
 
         const salt = await bcrypt.genSalt(12);
@@ -136,4 +138,9 @@ export async function changePasswordService(id, currentPassword, newPassword) {
         }
         throw new AppError(error.message || 'Error changing password', 500);
     }
+}
+
+export async function checkEmailExistsService(email) {
+    const user = await User.findOne({ email });
+    return !!user;
 }
