@@ -12,7 +12,7 @@ import {
     updateUserPassword
 } from '../../infrastructure/repositories/user-repositories/user.repository.write.js';
 import { AppError } from '../error/customErros.js';
-import { User } from '../../infrastructure/schemas/user.schema';
+import { User } from '../../infrastructure/schemas/user.schema.js';
 
 export async function getAllUsersService(page = 1, limit = 10) {
     try {

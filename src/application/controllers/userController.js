@@ -16,7 +16,7 @@ import {
     validatePasswordChange,
     validateUserRole
 } from "../../domain/validation/user.js";
-import { validateEmail } from '../../domain/utils/validation';
+import { validateEmail } from '../../domain/utils/validation.js';
 
 export async function listUsersHandler(req, res, next) {
     try {
