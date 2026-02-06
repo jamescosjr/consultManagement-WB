@@ -515,9 +515,11 @@ npm run lint:fix
 
 ## Testes
 
-- Toda nova funcionalidade ou alteração no código existente deve ser acompanhada de testes adequados (unitários e/ou de integração).
-- Certifique-se de que os testes cubram os casos de uso principais e cenários de erro.
-- Utilize a estrutura de testes existente no projeto para manter consistência.
+- **Obrigatório**: Toda nova funcionalidade ou correção de bug deve ser acompanhada de testes automatizados.
+- **Cobertura**: Certifique-se de que os testes cobrem os casos de uso principais e cenários de erro.
+- **Execução**: Todos os testes devem passar antes de qualquer commit ser realizado.
+- **Ferramentas**: Utilize as ferramentas de teste configuradas no projeto (ex.: Jest, Supertest).
+- **Estrutura**: Organize os testes em diretórios claros, como `__tests__/unit` e `__tests__/integration`.
 
 ---
 
