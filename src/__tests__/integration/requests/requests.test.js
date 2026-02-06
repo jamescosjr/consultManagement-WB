@@ -1,14 +1,35 @@
 import supertest from "supertest";
 import { app } from "../../../../server";
+import { User } from "../../../infrastructure/schemas/user.schema";
+import { MOCK_PASSWORD_HASH } from "../../../test-helpers/test-utils";
+const dbHandler = require('../../../../jest/jest.setup');
 
 describe("Requests API", () => {
     let token;
 
     beforeAll(async () => {
-        // Autenticar e obter token
+        await dbHandler.connect();
+    });
+
+    afterEach(async () => {
+        await dbHandler.clearDatabase();
+    });
+
+    afterAll(async () => {
+        await dbHandler.closeDatabase();
+    });
+
+    beforeEach(async () => {
+        await User.create({
+            name: "Root User",
+            email: "root@test.com",
+            passwordHash: MOCK_PASSWORD_HASH,
+            role: "root"
+        });
+
         const response = await supertest(app)
             .post("/auth/login")
-            .send({ email: "root@example.com", password: "rootpassword" });
+            .send({ email: "root@test.com", password: "TestPass123!" });
         token = response.body.token;
     });
 
