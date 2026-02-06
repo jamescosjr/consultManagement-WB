@@ -3,7 +3,15 @@ import mongoose from 'mongoose';
 export const consultSchema = new mongoose.Schema({
     date: {
         type: Date,
-        required: true
+        required: true,
+        set: (value) => {
+            // Se a data vier como string ISO, usar diretamente
+            // Se vier como valor Date, normalizar para início do dia em UTC
+            if (typeof value === 'string') {
+                return new Date(value);
+            }
+            return value;
+        }
     },
     shift: {
         type: String,
