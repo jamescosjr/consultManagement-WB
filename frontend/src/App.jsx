@@ -8,6 +8,8 @@ import RootUsers from './pages/RootUsers'
 import RootConsults from './pages/RootConsults'
 import ProtectedRoute from './components/ProtectedRoute'
 import { getToken, getUserRole } from './services/auth'
+import ManageClients from './pages/ManageClients';
+import ManageDoctors from './pages/ManageDoctors';
 
 export default function App() {
   const navigate = useNavigate()
@@ -32,6 +34,8 @@ export default function App() {
       <Route path="/root" element={<ProtectedRoute roles={["root"]}><DashboardRoot /></ProtectedRoute>} />
       <Route path="/root/users" element={<ProtectedRoute roles={["root"]}><RootUsers /></ProtectedRoute>} />
       <Route path="/root/consults" element={<ProtectedRoute roles={["root"]}><RootConsults /></ProtectedRoute>} />
+      <Route path="/root/clients" element={<ProtectedRoute roles={["root"]}><ManageClients /></ProtectedRoute>} />
+      <Route path="/root/doctors" element={<ProtectedRoute roles={["root"]}><ManageDoctors /></ProtectedRoute>} />
       <Route path="/doctor" element={<ProtectedRoute roles={["doctor"]}><DashboardDoctor /></ProtectedRoute>} />
       <Route path="/client" element={<ProtectedRoute roles={["client"]}><DashboardClient /></ProtectedRoute>} />
       <Route path="/" element={<Navigate to="/login" replace />} />
