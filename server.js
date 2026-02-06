@@ -14,9 +14,15 @@ import { correlationIdMiddleware, requestLoggerMiddleware } from './src/infrastr
 import logger from './src/infrastructure/observability/logger.js';
 import { metricsMiddleware, metricsHandler } from './src/infrastructure/observability/metrics.js';
 import { initTracing } from './src/infrastructure/observability/tracing.js';
+import cors from "cors";
 
 const schema = yaml.load(fs.readFileSync('./src/application/contracts/contract.yaml', 'utf8'));
 
+const corsOptions = {
+  origin: "http://localhost:5174", // Permitir o frontend
+  methods: ["GET", "POST", "PUT", "DELETE"], // Métodos permitidos
+  credentials: true // Permitir envio de cookies e headers de autenticação
+};
 
 // Inicializa tracing se configurado (não bloqueante)
 initTracing();
@@ -49,6 +55,8 @@ const validateSchema = (req, res, next) => {
 };
 
 app.use(validateSchema);
+
+app.use(cors(corsOptions));
 
 // Health e métricas
 app.get('/health', (req, res) => {
