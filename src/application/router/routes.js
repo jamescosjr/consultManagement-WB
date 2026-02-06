@@ -57,6 +57,13 @@ if (process.env.NODE_ENV === 'test') {
 // Removendo restrição de autenticação para login
 router.post('/auth/login', loginController);
 
+// Users - alias para register com permissões
+if (process.env.NODE_ENV === 'test') {
+    router.post('/users', registerController);
+} else {
+    router.post('/users', ensureAuthenticated, ensureRoles(['root']), registerController);
+}
+
 router.post('/consults', ensureAuthenticated, createConsultController);
 router.get('/consults/id/:id', getConsultByIdController);
 router.get('/consults/doctor/:doctorId', getConsultByDoctorIdController);

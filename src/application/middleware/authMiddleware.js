@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../domain/error/customErros.js';
-import { User } from '../../infrastructure/schemas/user.schema.js';
 import { JWT_SECRET } from '../../config/env.js';
 
 export async function ensureAuthenticated(req, res, next) {
