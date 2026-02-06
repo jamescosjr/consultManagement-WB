@@ -1,9 +1,15 @@
 import React from 'react'
 import { CalendarDays, Pencil, Trash2, Plus } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import api from '../services/api'
 import SearchableSelect from '../components/SearchableSelect'
 import Toast from '../components/Toast'
 import { useToast } from '../hooks/useToast'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../components/ui/form'
 
 const WEEK_DAYS = [
   'Domingo',
@@ -14,6 +20,14 @@ const WEEK_DAYS = [
   'Sexta-feira',
   'Sabado'
 ]
+
+const consultSchema = z.object({
+  date: z.string().min(1, { message: 'Data é obrigatória' }),
+  shift: z.enum(['MORNING', 'AFTERNOON']),
+  doctorId: z.string().min(1, { message: 'Médico é obrigatório' }),
+  patientId: z.string().min(1, { message: 'Paciente é obrigatório' }),
+  description: z.string().optional()
+})
 
 const formatDateInput = (value) => {
   const dateObj = new Date(value)
@@ -33,20 +47,26 @@ export default function RootConsults() {
   const [patients, setPatients] = React.useState({})
   const { notification, showError, showSuccess, closeToast } = useToast()
   
-  const [editForm, setEditForm] = React.useState({
-    date: '',
-    shift: 'MORNING',
-    doctorId: '',
-    patientId: '',
-    description: ''
+  const createForm = useForm({
+    resolver: zodResolver(consultSchema),
+    defaultValues: {
+      date: '',
+      shift: 'MORNING',
+      doctorId: '',
+      patientId: '',
+      description: ''
+    }
   })
 
-  const [createForm, setCreateForm] = React.useState({
-    date: '',
-    shift: 'MORNING',
-    doctorId: '',
-    patientId: '',
-    description: ''
+  const editForm = useForm({
+    resolver: zodResolver(consultSchema),
+    defaultValues: {
+      date: '',
+      shift: 'MORNING',
+      doctorId: '',
+      patientId: '',
+      description: ''
+    }
   })
 
   const fetchConsults = async () => {
@@ -100,7 +120,7 @@ export default function RootConsults() {
 
   const handleStartEdit = (consult) => {
     setEditingId(consult._id)
-    setEditForm({
+    editForm.reset({
       date: formatDateInput(consult.date),
       shift: consult.shift || 'MORNING',
       doctorId: consult.doctorId || '',
@@ -111,38 +131,13 @@ export default function RootConsults() {
 
   const handleCancelEdit = () => {
     setEditingId(null)
-    setEditForm({
+    editForm.reset({
       date: '',
       shift: 'MORNING',
       doctorId: '',
       patientId: '',
       description: ''
     })
-  }
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target
-    setEditForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSaveEdit = async (id) => {
-    try {
-      const submitData = {
-        ...editForm,
-        date: convertDateToUTC(editForm.date)
-      }
-      await api.put(`/consults/${id}`, submitData)
-      setEditingId(null)
-      fetchConsults()
-      showSuccess('Consulta atualizada com sucesso!')
-    } catch (err) {
-      showError(err)
-    }
-  }
-
-  const handleCreateChange = (e) => {
-    const { name, value } = e.target
-    setCreateForm((prev) => ({ ...prev, [name]: value }))
   }
 
   const convertDateToUTC = (dateString) => {
@@ -153,19 +148,29 @@ export default function RootConsults() {
     return localDate.toISOString()
   }
 
-  const handleCreateSubmit = async (e) => {
-    e.preventDefault()
-    if (!createForm.doctorId || !createForm.patientId || !createForm.date) {
-      showError({ message: 'Preencha todos os campos obrigatórios: Data, Médico e Paciente' })
-      return
-    }
+  const onEditSubmit = async (values) => {
     try {
       const submitData = {
-        ...createForm,
-        date: convertDateToUTC(createForm.date)
+        ...values,
+        date: convertDateToUTC(values.date)
+      }
+      await api.put(`/consults/${editingId}`, submitData)
+      setEditingId(null)
+      fetchConsults()
+      showSuccess('Consulta atualizada com sucesso!')
+    } catch (err) {
+      showError(err)
+    }
+  }
+
+  const onCreateSubmit = async (values) => {
+    try {
+      const submitData = {
+        ...values,
+        date: convertDateToUTC(values.date)
       }
       await api.post('/consults', submitData)
-      setCreateForm({
+      createForm.reset({
         date: '',
         shift: 'MORNING',
         doctorId: '',
@@ -181,7 +186,7 @@ export default function RootConsults() {
   }
 
   const resetCreateForm = () => {
-    setCreateForm({
+    createForm.reset({
       date: '',
       shift: 'MORNING',
       doctorId: '',
@@ -231,57 +236,102 @@ export default function RootConsults() {
               </div>
             </div>
             <div className="card-body">
-              <form onSubmit={handleCreateSubmit} className="grid gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Data *</label>
-                  <input
-                    className="input-field"
-                    type="date"
+              <Form {...createForm}>
+                <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={createForm.control}
                     name="date"
-                    value={createForm.date}
-                    onChange={handleCreateChange}
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Data *</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Turno</label>
-                  <select className="input-field" name="shift" value={createForm.shift} onChange={handleCreateChange}>
-                    <option value="MORNING">Manhã</option>
-                    <option value="AFTERNOON">Tarde</option>
-                  </select>
-                </div>
-                <div>
-                  <SearchableSelect
-                    type="doctors"
-                    value={createForm.doctorId}
-                    onChange={(value) => setCreateForm(prev => ({ ...prev, doctorId: value || '' }))}
-                    label="Médico *"
+                  
+                  <FormField
+                    control={createForm.control}
+                    name="shift"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Turno</FormLabel>
+                        <FormControl>
+                          <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" {...field}>
+                            <option value="MORNING">Manhã</option>
+                            <option value="AFTERNOON">Tarde</option>
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div>
-                  <SearchableSelect
-                    type="patients"
-                    value={createForm.patientId}
-                    onChange={(value) => setCreateForm(prev => ({ ...prev, patientId: value || '' }))}
-                    label="Paciente *"
+                  
+                  <FormField
+                    control={createForm.control}
+                    name="doctorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Médico *</FormLabel>
+                        <FormControl>
+                          <SearchableSelect
+                            type="doctors"
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="md:col-span-2 flex flex-col gap-2">
-                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Descrição</label>
-                  <textarea
-                    className="input-field"
+                  
+                  <FormField
+                    control={createForm.control}
+                    name="patientId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Paciente *</FormLabel>
+                        <FormControl>
+                          <SearchableSelect
+                            type="patients"
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={createForm.control}
                     name="description"
-                    value={createForm.description}
-                    onChange={handleCreateChange}
-                    rows="3"
-                    placeholder="Observações sobre a consulta..."
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                          <textarea
+                            className="flex min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                            rows="3"
+                            placeholder="Observações sobre a consulta..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="md:col-span-2 flex flex-wrap gap-3">
-                  <button type="submit" className="btn-primary">Criar consulta</button>
-                  <button type="button" className="btn-secondary" onClick={resetCreateForm}>Cancelar</button>
-                </div>
-              </form>
+                  
+                  <div className="md:col-span-2 flex flex-wrap gap-3">
+                    <Button type="submit" disabled={createForm.formState.isSubmitting}>
+                      {createForm.formState.isSubmitting ? 'Criando...' : 'Criar consulta'}
+                    </Button>
+                    <Button type="button" variant="secondary" onClick={resetCreateForm}>Cancelar</Button>
+                  </div>
+                </form>
+              </Form>
             </div>
           </div>
         )}
@@ -316,55 +366,101 @@ export default function RootConsults() {
                             {consultsByDay[index].map((consult) => (
                               <li key={consult._id} className="rounded-xl border border-slate-200 bg-white px-4 py-4">
                                 {editingId === consult._id ? (
-                                  <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="flex flex-col gap-2">
-                                      <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Date</label>
-                                      <input
-                                        className="input-field"
-                                        type="date"
+                                  <Form {...editForm}>
+                                    <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="grid gap-4 md:grid-cols-2">
+                                      <FormField
+                                        control={editForm.control}
                                         name="date"
-                                        value={editForm.date}
-                                        onChange={handleEditChange}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Date</FormLabel>
+                                            <FormControl>
+                                              <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
                                       />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                      <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Shift</label>
-                                      <select className="input-field" name="shift" value={editForm.shift} onChange={handleEditChange}>
-                                        <option value="MORNING">Manhã</option>
-                                        <option value="AFTERNOON">Tarde</option>
-                                      </select>
-                                    </div>
-                                    <div>
-                                      <SearchableSelect
-                                        type="doctors"
-                                        value={editForm.doctorId}
-                                        onChange={(value) => setEditForm(prev => ({ ...prev, doctorId: value || '' }))}
-                                        label="Médico"
+                                      
+                                      <FormField
+                                        control={editForm.control}
+                                        name="shift"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Shift</FormLabel>
+                                            <FormControl>
+                                              <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" {...field}>
+                                                <option value="MORNING">Manhã</option>
+                                                <option value="AFTERNOON">Tarde</option>
+                                              </select>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
                                       />
-                                    </div>
-                                    <div>
-                                      <SearchableSelect
-                                        type="patients"
-                                        value={editForm.patientId}
-                                        onChange={(value) => setEditForm(prev => ({ ...prev, patientId: value || '' }))}
-                                        label="Paciente"
+                                      
+                                      <FormField
+                                        control={editForm.control}
+                                        name="doctorId"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Médico</FormLabel>
+                                            <FormControl>
+                                              <SearchableSelect
+                                                type="doctors"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
                                       />
-                                    </div>
-                                    <div className="md:col-span-2 flex flex-col gap-2">
-                                      <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Description</label>
-                                      <textarea
-                                        className="input-field"
+                                      
+                                      <FormField
+                                        control={editForm.control}
+                                        name="patientId"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Paciente</FormLabel>
+                                            <FormControl>
+                                              <SearchableSelect
+                                                type="patients"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                      
+                                      <FormField
+                                        control={editForm.control}
                                         name="description"
-                                        value={editForm.description}
-                                        onChange={handleEditChange}
-                                        rows="3"
+                                        render={({ field }) => (
+                                          <FormItem className="md:col-span-2">
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                              <textarea
+                                                className="flex min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                                rows="3"
+                                                {...field}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
                                       />
-                                    </div>
-                                    <div className="md:col-span-2 flex flex-wrap gap-3">
-                                      <button className="btn-primary" onClick={() => handleSaveEdit(consult._id)}>Save changes</button>
-                                      <button className="btn-secondary" onClick={handleCancelEdit}>Cancel</button>
-                                    </div>
-                                  </div>
+                                      
+                                      <div className="md:col-span-2 flex flex-wrap gap-3">
+                                        <Button type="submit" disabled={editForm.formState.isSubmitting}>
+                                          {editForm.formState.isSubmitting ? 'Salvando...' : 'Save changes'}
+                                        </Button>
+                                        <Button type="button" variant="secondary" onClick={handleCancelEdit}>Cancel</Button>
+                                      </div>
+                                    </form>
+                                  </Form>
                                 ) : (
                                   <div className="flex flex-col gap-2">
                                     <div className="flex flex-wrap items-center justify-between gap-2">

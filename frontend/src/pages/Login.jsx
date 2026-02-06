@@ -1,29 +1,41 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { ShieldCheck, Stethoscope } from 'lucide-react'
 import { login, getUserRole } from '../services/auth'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../components/ui/form'
+
+const loginSchema = z.object({
+  email: z.string().email({ message: 'Email inválido' }),
+  password: z.string().min(1, { message: 'Senha é obrigatória' })
+})
 
 export default function Login() {
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
   const [error, setError] = React.useState(null)
-  const [loading, setLoading] = React.useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  })
+
+  const onSubmit = async (values) => {
     setError(null)
-    setLoading(true)
     try {
-      await login({ email, password })
+      await login(values)
       const role = getUserRole()
       if (role === 'root') navigate('/root')
       if (role === 'doctor') navigate('/doctor')
       if (role === 'client') navigate('/client')
     } catch (err) {
       setError(err?.message || 'Login failed')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -49,31 +61,46 @@ export default function Login() {
               </div>
               <ShieldCheck className="h-5 w-5 text-emerald-600" />
             </div>
-            <form onSubmit={handleSubmit} className="card-body flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700">Email</label>
-                <input
-                  className="input-field"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="name@clinic.com"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700">Password</label>
-                <input
-                  className="input-field"
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                />
-              </div>
-              {error && <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</div>}
-              <button type="submit" className="btn-primary justify-center" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign in'}
-              </button>
-            </form>
+            <div className="card-body">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="name@clinic.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Enter your password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {error && (
+                    <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+                      {error}
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
+                  </Button>
+                </form>
+              </Form>
+            </div>
           </div>
         </div>
       </div>
